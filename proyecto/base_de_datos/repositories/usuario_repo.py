@@ -1,7 +1,7 @@
 import csv
 import uuid
 from datetime import datetime
-from base_de_datos.csv_database import get_csv_path, get_columns
+from proyecto.base_de_datos.csv_database import get_csv_path, get_columns
 
 
 class UsuarioRepository:

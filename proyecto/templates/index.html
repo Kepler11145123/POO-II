@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Proyectos</h1>
+
+<div id="lista">
+  {% include "partials/proyectos_lista.html" %}
+</div>
+
+<form
+  hx-post="/proyectos"
+  hx-target="#lista"
+  hx-swap="innerHTML"
+>
+  <input type="text" name="nombre" placeholder="Nombre" required>
+  <input type="text" name="descripcion" placeholder="Descripción">
+  <button type="submit">Crear</button>
+</form>
+{% endblock %}
