@@ -8,8 +8,8 @@ POST /proyectos/{id}/tareas         → agregar una tarea a un proyecto
 """
 from fastapi import APIRouter, HTTPException, status
 from proyecto.api.models import ProyectoRequest, ProyectoResponse, TareaRequest, TareaResponse
-from src.domain.proyecto import Proyecto
-from src.domain.tarea import Tarea
+from proyecto.src.domain.proyecto import Proyecto
+from proyecto.src.domain.tarea import Tarea
 from proyecto.base_de_datos.repositories import repositorio
 
 router = APIRouter(prefix="/proyectos", tags=["Proyectos"])

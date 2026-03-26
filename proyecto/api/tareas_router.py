@@ -6,7 +6,7 @@ PATCH /tareas/{id}/prioridad    → cambia la prioridad de una tarea
 """
 from fastapi import APIRouter, HTTPException, status
 from proyecto.api.models import TareaResponse, CambiarPrioridadRequest
-from src.domain.tarea import Tarea
+from proyecto.src.domain.tarea import Tarea
 from proyecto.base_de_datos.repositories import repositorio
 
 router = APIRouter(prefix="/tareas", tags=["Tareas"])

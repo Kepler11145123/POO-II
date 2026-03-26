@@ -14,7 +14,7 @@ from proyecto.api.proyectos_router import router as proyectos_router
 from proyecto.api.tareas_router import router as tareas_router
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from api.routes import proyectos_router, tareas_router
+from proyecto.api.routes import proyectos, tareas
 
 app = FastAPI(
     title="POO II — Sistema de Gestión de Proyectos",
