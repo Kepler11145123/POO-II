@@ -1,46 +1,69 @@
-<div>
-  <h3>Tareas</h3>
+<div class="card shadow-sm" id="contenedor-tareas-{{ proyecto_id }}">
+  <div class="card-header d-flex justify-content-between align-items-center py-2">
+    <h6 class="mb-0 fw-semibold">
+      <i class="bi bi-list-check me-1 text-primary"></i>Tareas del proyecto
+    </h6>
+    <span class="badge bg-primary rounded-pill">{{ tareas | length }}</span>
+  </div>
 
-  <form
-    hx-post="/proyectos/{{ proyecto_id }}/tareas"
-    hx-target="closest div"
-    hx-swap="outerHTML"
-  >
-    <input type="text" name="titulo" placeholder="Nueva tarea" required>
-    <select name="prioridad">
-      <option value="baja">Baja</option>
-      <option value="media">Media</option>
-      <option value="alta">Alta</option>
-    </select>
-    <button type="submit">Añadir</button>
-  </form>
+  <div class="card-body">
 
-  <ul>
-    {% for t in tareas %}
-      <li>
-        {{ t.titulo }} ({{ t.prioridad }})
+    <!-- Formulario agregar tarea -->
+    {% if error %}
+      <div class="alert alert-danger py-2 small">{{ error }}</div>
+    {% endif %}
 
-        <button
-          hx-patch="/proyectos/{{ proyecto_id }}/tareas/{{ t.id }}/completar"
-          hx-target="closest div"
-          hx-swap="outerHTML"
-          hx-trigger="click"
-        >
-          {% if t.completada %}Desmarcar{% else %}Completar{% endif %}
-        </button>
-
-        <select
-          name="prioridad"
-          hx-patch="/proyectos/{{ proyecto_id }}/tareas/{{ t.id }}/prioridad"
-          hx-target="closest div"
-          hx-swap="outerHTML"
-          hx-trigger="change"
-        >
-          <option value="baja"  {% if t.prioridad == "baja" %}selected{% endif %}>Baja</option>
-          <option value="media" {% if t.prioridad == "media" %}selected{% endif %}>Media</option>
-          <option value="alta"  {% if t.prioridad == "alta" %}selected{% endif %}>Alta</option>
+    <form
+      hx-post="/proyectos/{{ proyecto_id }}/tareas"
+      hx-target="#contenedor-tareas-{{ proyecto_id }}"
+      hx-swap="outerHTML"
+      class="row g-2 mb-3"
+    >
+      <div class="col-12 col-md-5">
+        <input
+          type="text"
+          name="titulo"
+          class="form-control form-control-sm"
+          placeholder="Título de la tarea *"
+          required
+          minlength="3"
+        />
+      </div>
+      <div class="col-12 col-md-4">
+        <input
+          type="text"
+          name="descripcion"
+          class="form-control form-control-sm"
+          placeholder="Descripción (opcional)"
+        />
+      </div>
+      <div class="col-6 col-md-2">
+        <select name="prioridad" class="form-select form-select-sm">
+          <option value="Baja">Baja</option>
+          <option value="Media" selected>Media</option>
+          <option value="Alta">Alta</option>
         </select>
-      </li>
-    {% endfor %}
-  </ul>
+      </div>
+      <div class="col-6 col-md-1">
+        <button type="submit" class="btn btn-primary btn-sm w-100" title="Agregar tarea">
+          <i class="bi bi-plus-lg"></i>
+        </button>
+      </div>
+    </form>
+
+    <!-- Lista de tareas -->
+    {% if tareas %}
+      <ul class="list-unstyled mb-0" id="lista-tareas-{{ proyecto_id }}">
+        {% for tarea in tareas %}
+          {% include "tareas/item.html" %}
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted text-center small py-3">
+        <i class="bi bi-inbox fs-4 d-block mb-1"></i>
+        No hay tareas. ¡Agrega la primera!
+      </p>
+    {% endif %}
+
+  </div>
 </div>

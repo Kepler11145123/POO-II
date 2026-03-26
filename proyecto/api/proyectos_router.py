@@ -1,110 +1,178 @@
 """
 proyectos_router.py — Endpoints para la entidad Proyecto.
 
-GET  /proyectos                     → listar todos los proyectos
-POST /proyectos                     → crear un nuevo proyecto
-GET  /proyectos/{id}                → obtener un proyecto por ID
-POST /proyectos/{id}/tareas         → agregar una tarea a un proyecto
+GET  /proyectos                     → lista HTML (HTMX)
+POST /proyectos                     → crea proyecto y devuelve lista HTML (HTMX)
+GET  /proyectos/{id}                → obtener proyecto JSON
+POST /proyectos/{id}/tareas         → crea tarea y devuelve lista tareas HTML (HTMX)
 """
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from proyecto.api.models import ProyectoRequest, ProyectoResponse, TareaRequest, TareaResponse
 from proyecto.src.domain.proyecto import Proyecto
 from proyecto.src.domain.tarea import Tarea
 from proyecto.base_de_datos.repositories import repositorio
 
 router = APIRouter(prefix="/proyectos", tags=["Proyectos"])
+templates = Jinja2Templates(directory="proyecto/templates")
 
+
+# ─ Endpoints HTML para HTMX ─
 
 @router.get(
-    "/",
-    response_model=list[ProyectoResponse],
-    summary="Listar todos los proyectos",
-    description="Devuelve todos los proyectos registrados con su cantidad de tareas."
+    "",
+    response_class=HTMLResponse,
+    include_in_schema=False,
 )
-def listar_proyectos():
-    return [_a_response(pid, proyecto) for pid, proyecto in repositorio.listar_proyectos()]
+def listar_proyectos_html(request: Request):
+    """Devuelve el partial HTML con la lista de proyectos."""
+    proyectos = [_a_response(pid, p) for pid, p in repositorio.listar_proyectos()]
+    return templates.TemplateResponse(
+        request,
+        "proyectos/lista.html",
+        {"proyectos": proyectos},
+    )
 
 
 @router.post(
-    "/",
-    response_model=ProyectoResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Crear un nuevo proyecto",
-    description="Crea un proyecto. Si se proporciona `lider_id`, el usuario debe existir. "
-                "Devuelve 404 si el líder no existe, 422 si el nombre es inválido."
+    "",
+    response_class=HTMLResponse,
+    include_in_schema=False,
 )
-def crear_proyecto(body: ProyectoRequest):
+async def crear_proyecto_html(request: Request):
+    """Recibe form-data, crea el proyecto y devuelve la lista actualizada."""
+    form = await request.form()
+    nombre = form.get("nombre", "").strip()
+    descripcion = form.get("descripcion", "").strip() or None
+    lider_id_raw = form.get("lider_id", "").strip()
+
     lider = None
-    if body.lider_id is not None:
-        lider = repositorio.obtener_usuario(body.lider_id)
-        if not lider:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Usuario con ID {body.lider_id} no encontrado."
-            )
+    if lider_id_raw:
+        try:
+            lider = repositorio.obtener_usuario(int(lider_id_raw))
+        except ValueError:
+            pass
+
     try:
-        proyecto = Proyecto(
-            nombre=body.nombre,
-            descripcion=body.descripcion,
-            lider=lider
-        )
+        proyecto = Proyecto(nombre=nombre, descripcion=descripcion, lider=lider)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(e)
+        proyectos = [_a_response(pid, p) for pid, p in repositorio.listar_proyectos()]
+        return templates.TemplateResponse(
+            request,
+            "proyectos/lista.html",
+            {"proyectos": proyectos, "error": str(e)},
         )
-    pid = repositorio.guardar_proyecto(proyecto)
-    return _a_response(pid, proyecto)
+
+    repositorio.guardar_proyecto(proyecto)
+    proyectos = [_a_response(pid, p) for pid, p in repositorio.listar_proyectos()]
+    return templates.TemplateResponse(
+        request,
+        "proyectos/lista.html",
+        {"proyectos": proyectos},
+    )
 
 
 @router.get(
-    "/{proyecto_id}",
-    response_model=ProyectoResponse,
-    summary="Obtener un proyecto por ID",
-    description="Busca un proyecto por su ID. Devuelve 404 si no existe."
+    "/{proyecto_id}/tareas",
+    response_class=HTMLResponse,
+    include_in_schema=False,
 )
-def obtener_proyecto(proyecto_id: int):
+def listar_tareas_html(proyecto_id: int, request: Request):
+    """Devuelve el partial HTML con las tareas de un proyecto."""
     proyecto = repositorio.obtener_proyecto(proyecto_id)
     if not proyecto:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Proyecto con ID {proyecto_id} no encontrado."
-        )
-    return _a_response(proyecto_id, proyecto)
+        return HTMLResponse("<p>Proyecto no encontrado.</p>", status_code=404)
+
+    tareas = [
+        _a_response_tarea(tid, t)
+        for tid, t in repositorio.listar_tareas()
+        if t in proyecto.tareas
+    ]
+    return templates.TemplateResponse(
+        request,
+        "tareas/lista.html",
+        {"tareas": tareas, "proyecto_id": proyecto_id},
+    )
 
 
 @router.post(
     "/{proyecto_id}/tareas",
-    response_model=TareaResponse,
-    status_code=status.HTTP_201_CREATED,
-    summary="Agregar una tarea a un proyecto",
-    description="Crea una tarea y la agrega al proyecto indicado. "
-                "Devuelve 404 si el proyecto no existe, 422 si el título es inválido."
+    response_class=HTMLResponse,
+    include_in_schema=False,
 )
-def agregar_tarea(proyecto_id: int, body: TareaRequest):
+async def agregar_tarea_html(proyecto_id: int, request: Request):
+    """Recibe form-data, crea la tarea y devuelve la lista de tareas actualizada."""
+    from proyecto.src.domain.enums import PrioridadTarea
+
     proyecto = repositorio.obtener_proyecto(proyecto_id)
     if not proyecto:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Proyecto con ID {proyecto_id} no encontrado."
-        )
+        return HTMLResponse("<p>Proyecto no encontrado.</p>", status_code=404)
+
+    form = await request.form()
+    titulo = form.get("titulo", "").strip()
+    descripcion = form.get("descripcion", "").strip() or None
+    prioridad_raw = form.get("prioridad", "").strip()
+
+    prioridad = None
+    if prioridad_raw:
+        try:
+            prioridad = PrioridadTarea(prioridad_raw.capitalize())
+        except ValueError:
+            pass
+
     try:
-        tarea = Tarea(
-            titulo=body.titulo,
-            descripcion=body.descripcion,
-            prioridad=body.prioridad
-        )
+        tarea = Tarea(titulo=titulo, descripcion=descripcion, prioridad=prioridad)
         proyecto.agregar_tarea(tarea)
+        repositorio.guardar_tarea(tarea)
     except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=str(e)
+        tareas = [
+            _a_response_tarea(tid, t)
+            for tid, t in repositorio.listar_tareas()
+            if t in proyecto.tareas
+        ]
+        return templates.TemplateResponse(
+            request,
+            "tareas/lista.html",
+            {"tareas": tareas, "proyecto_id": proyecto_id, "error": str(e)},
         )
-    tid = repositorio.guardar_tarea(tarea)
-    return _a_response_tarea(tid, tarea)
+
+    tareas = [
+        _a_response_tarea(tid, t)
+        for tid, t in repositorio.listar_tareas()
+        if t in proyecto.tareas
+    ]
+    return templates.TemplateResponse(
+        request,
+        "tareas/lista.html",
+        {"tareas": tareas, "proyecto_id": proyecto_id},
+    )
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+# ─ Endpoints JSON (para Swagger / API pura) ─
+
+@router.get(
+    "/json",
+    response_model=list[ProyectoResponse],
+    summary="Listar proyectos (JSON)",
+)
+def listar_proyectos_json():
+    return [_a_response(pid, p) for pid, p in repositorio.listar_proyectos()]
+
+
+@router.get(
+    "/{proyecto_id}/json",
+    response_model=ProyectoResponse,
+    summary="Obtener proyecto por ID (JSON)",
+)
+def obtener_proyecto_json(proyecto_id: int):
+    proyecto = repositorio.obtener_proyecto(proyecto_id)
+    if not proyecto:
+        raise HTTPException(status_code=404, detail=f"Proyecto {proyecto_id} no encontrado.")
+    return _a_response(proyecto_id, proyecto)
+
+
+# ─ Helpers ─
 
 def _a_response(pid: int, proyecto: Proyecto) -> ProyectoResponse:
     lider_id = None
@@ -119,7 +187,7 @@ def _a_response(pid: int, proyecto: Proyecto) -> ProyectoResponse:
         descripcion=proyecto.descripcion,
         lider_id=lider_id,
         total_tareas=len(proyecto.tareas),
-        fecha_creacion=proyecto.fecha_creacion
+        fecha_creacion=proyecto.fecha_creacion,
     )
 
 
@@ -131,5 +199,5 @@ def _a_response_tarea(tid: int, tarea: Tarea) -> TareaResponse:
         estado=tarea._estado,
         prioridad=tarea._prioridad,
         fecha_creacion=tarea.fecha_creacion,
-        fecha_completada=tarea._fecha_completada
+        fecha_completada=tarea._fecha_completada,
     )

@@ -1,18 +1,42 @@
 {% extends "base.html" %}
+
+{% block title %}TaskFlow — Proyectos{% endblock %}
+
 {% block content %}
-<h1>Proyectos</h1>
+<div class="row g-4">
 
-<div id="lista">
-  {% include "partials/proyectos_lista.html" %}
+  <!-- ── Columna izquierda: formulario + lista de proyectos ── -->
+  <div class="col-lg-4">
+
+    <!-- Formulario crear proyecto -->
+    {% include "proyectos/form.html" %}
+
+    <!-- Lista de proyectos (se carga al abrir la página) -->
+    <div
+      id="lista-proyectos"
+      hx-get="/proyectos"
+      hx-trigger="load"
+      hx-swap="innerHTML"
+    >
+      <div class="text-center text-muted py-3">
+        <div class="spinner-border spinner-border-sm" role="status"></div>
+        Cargando proyectos…
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Columna derecha: tareas del proyecto seleccionado ── -->
+  <div class="col-lg-8">
+    <div id="panel-tareas">
+      <div class="card shadow-sm">
+        <div class="card-body text-center text-muted py-5">
+          <i class="bi bi-arrow-left-circle fs-3 d-block mb-2"></i>
+          Selecciona un proyecto para ver sus tareas.
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
-
-<form
-  hx-post="/proyectos"
-  hx-target="#lista"
-  hx-swap="innerHTML"
->
-  <input type="text" name="nombre" placeholder="Nombre" required>
-  <input type="text" name="descripcion" placeholder="Descripción">
-  <button type="submit">Crear</button>
-</form>
 {% endblock %}

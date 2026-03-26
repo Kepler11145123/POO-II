@@ -1,0 +1,52 @@
+<!-- tareas/item.html — Partial: un ítem de tarea -->
+{% set completada = tarea.estado.value == 'Completada' %}
+{% set prioridad_val = tarea.prioridad.value if tarea.prioridad else 'Sin prioridad' %}
+{% set prioridad_css = 'alta' if prioridad_val == 'Alta' else ('media' if prioridad_val == 'Media' else 'baja') %}
+
+<li
+  id="tarea-{{ tarea.id }}"
+  class="d-flex align-items-start gap-2 py-2 border-bottom {% if completada %}tarea-completada{% endif %}"
+>
+
+  <!-- Botón completar -->
+  <button
+    class="btn btn-sm {% if completada %}btn-success{% else %}btn-outline-secondary{% endif %} mt-1 flex-shrink-0"
+    style="width:30px; height:30px; padding:0;"
+    hx-patch="/tareas/{{ tarea.id }}/completar"
+    hx-target="#tarea-{{ tarea.id }}"
+    hx-swap="outerHTML"
+    hx-trigger="click"
+    title="{% if completada %}Completada{% else %}Marcar como completada{% endif %}"
+  >
+    <i class="bi {% if completada %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+  </button>
+
+  <!-- Info de la tarea -->
+  <div class="flex-grow-1">
+    <div class="tarea-titulo fw-semibold">{{ tarea.titulo }}</div>
+    {% if tarea.descripcion %}
+      <small class="text-muted">{{ tarea.descripcion }}</small>
+    {% endif %}
+    <div class="mt-1">
+      <span class="badge badge-{{ prioridad_css }} small">{{ prioridad_val }}</span>
+      <span class="badge bg-light text-secondary small ms-1">{{ tarea.estado.value }}</span>
+    </div>
+  </div>
+
+  <!-- Selector de prioridad -->
+  <select
+    class="form-select form-select-sm flex-shrink-0"
+    style="width: 90px;"
+    name="prioridad"
+    hx-patch="/tareas/{{ tarea.id }}/prioridad"
+    hx-target="#tarea-{{ tarea.id }}"
+    hx-swap="outerHTML"
+    hx-trigger="change"
+    {% if completada %}disabled{% endif %}
+  >
+    <option value="Baja"  {% if prioridad_val == 'Baja'  %}selected{% endif %}>Baja</option>
+    <option value="Media" {% if prioridad_val == 'Media' %}selected{% endif %}>Media</option>
+    <option value="Alta"  {% if prioridad_val == 'Alta'  %}selected{% endif %}>Alta</option>
+  </select>
+
+</li>

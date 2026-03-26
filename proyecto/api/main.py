@@ -8,7 +8,10 @@ Documentación automática disponible en:
     http://localhost:8000/docs      (Swagger UI)
     http://localhost:8000/redoc     (ReDoc)
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from proyecto.base_de_datos.csv_database import init_db
+from proyecto.base_de_datos.repositories.usuario_repo import UsuarioRepository
 from proyecto.api.usuarios_router import router as usuarios_router
 from proyecto.api.proyectos_router import router as proyectos_router
 from proyecto.api.tareas_router import router as tareas_router
@@ -34,8 +37,8 @@ app = FastAPI(
 )
 
 # templates y static para HTMX y Jinja2
-templates= Jinja2Templates(directory="proyecto/api/templates")
-app.mount("/static", StaticFiles(directory="proyecto/api/static"), name="static")
+templates= Jinja2Templates(directory="proyecto/templates")
+app.mount("/static", StaticFiles(directory="proyecto/static"), name="static")
 
 # Registra los routers — cada uno agrupa endpoints de una entidad
 app.include_router(usuarios_router)
@@ -43,16 +46,21 @@ app.include_router(proyectos_router)
 app.include_router(tareas_router)
 
 
-@app.get("/", tags=["Root"], summary="Estado de la API")
+@app.get("/status", tags=["Root"], summary="Estado de la API")
 def root():
     """Verifica que la API esté corriendo."""
     return {"mensaje": "API funcionando", "docs": "/docs"}
 
+# Rutas HTML que devuelven templates jinja2
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def index(request: Request):
+    """Página principal — carga el shell; HTMX rellena el contenido."""
+    return templates.TemplateResponse(
+    request,
+    "index.html",
+    {"request": request}
+)
 
-from fastapi import FastAPI
-from base_de_datos.csv_database import init_db
-
-app = FastAPI()
 
 # Inicializa los CSVs al arrancar (equivalente a create_all() en SQLAlchemy)
 @app.on_event("startup")
@@ -60,8 +68,6 @@ def startup():
     init_db()
 
 # Ejemplo de uso en una ruta
-from base_de_datos.repositories.usuario_repo import UsuarioRepository
-
 @app.post("/usuarios/")
 def crear_usuario(username: str, email: str):
     repo = UsuarioRepository()
