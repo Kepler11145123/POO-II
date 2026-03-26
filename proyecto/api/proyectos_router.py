@@ -7,10 +7,10 @@ GET  /proyectos/{id}                → obtener un proyecto por ID
 POST /proyectos/{id}/tareas         → agregar una tarea a un proyecto
 """
 from fastapi import APIRouter, HTTPException, status
-from src.api.schemas import ProyectoRequest, ProyectoResponse, TareaRequest, TareaResponse
+from proyecto.api.models import ProyectoRequest, ProyectoResponse, TareaRequest, TareaResponse
 from src.domain.proyecto import Proyecto
 from src.domain.tarea import Tarea
-from src.repositories.repository import repositorio
+from proyecto.base_de_datos.repositories import repositorio
 
 router = APIRouter(prefix="/proyectos", tags=["Proyectos"])
 

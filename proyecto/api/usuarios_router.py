@@ -6,9 +6,9 @@ POST /usuarios          → crear un nuevo usuario
 GET  /usuarios/{id}     → obtener un usuario por ID
 """
 from fastapi import APIRouter, HTTPException, status
-from src.api.schemas import UsuarioRequest, UsuarioResponse
-from src.domain.usuario import Usuario
-from src.repositories.repository import repositorio
+from proyecto.api.models  import UsuarioRequest, UsuarioResponse
+from proyecto.src.domain.usuario import Usuario
+from proyecto.base_de_datos.repositories import usuario_repo as repositorio
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 

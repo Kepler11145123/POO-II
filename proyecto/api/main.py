@@ -2,16 +2,19 @@
 main.py — Punto de entrada de la aplicación FastAPI.
 
 Ejecutar con:
-    uvicorn src.api.main:app --reload
+    uvicorn proyecto.api.main:app --reload
 
 Documentación automática disponible en:
     http://localhost:8000/docs      (Swagger UI)
     http://localhost:8000/redoc     (ReDoc)
 """
 from fastapi import FastAPI
-from src.api.usuarios_router import router as usuarios_router
-from src.api.proyectos_router import router as proyectos_router
-from src.api.tareas_router import router as tareas_router
+from proyecto.api.usuarios_router import router as usuarios_router
+from proyecto.api.proyectos_router import router as proyectos_router
+from proyecto.api.tareas_router import router as tareas_router
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from api.routes import proyectos_router, tareas_router
 
 app = FastAPI(
     title="POO II — Sistema de Gestión de Proyectos",
@@ -30,6 +33,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# templates y static para HTMX y Jinja2
+templates= Jinja2Templates(directory="proyecto/api/templates")
+app.mount("/static", StaticFiles(directory="proyecto/api/static"), name="static")
+
 # Registra los routers — cada uno agrupa endpoints de una entidad
 app.include_router(usuarios_router)
 app.include_router(proyectos_router)
@@ -40,7 +47,8 @@ app.include_router(tareas_router)
 def root():
     """Verifica que la API esté corriendo."""
     return {"mensaje": "API funcionando", "docs": "/docs"}
-=======
+
+
 from fastapi import FastAPI
 from base_de_datos.csv_database import init_db
 

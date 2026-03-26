@@ -5,9 +5,9 @@ PATCH /tareas/{id}/completar    → marca una tarea como completada
 PATCH /tareas/{id}/prioridad    → cambia la prioridad de una tarea
 """
 from fastapi import APIRouter, HTTPException, status
-from src.api.schemas import TareaResponse, CambiarPrioridadRequest
+from proyecto.api.models import TareaResponse, CambiarPrioridadRequest
 from src.domain.tarea import Tarea
-from src.repositories.repository import repositorio
+from proyecto.base_de_datos.repositories import repositorio
 
 router = APIRouter(prefix="/tareas", tags=["Tareas"])
 

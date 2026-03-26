@@ -1,0 +1,14 @@
+<ul>
+  {% for p in proyectos %}
+    <li>
+      <button
+        hx-get="/proyectos/{{ p.id }}/tareas"
+        hx-target="#tareas-{{ p.id }}"
+        hx-swap="innerHTML"
+      >
+        {{ p.nombre }}
+      </button>
+      <div id="tareas-{{ p.id }}"></div>
+    </li>
+  {% endfor %}
+</ul>

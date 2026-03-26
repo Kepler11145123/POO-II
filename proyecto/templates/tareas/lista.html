@@ -1,0 +1,46 @@
+<div>
+  <h3>Tareas</h3>
+
+  <form
+    hx-post="/proyectos/{{ proyecto_id }}/tareas"
+    hx-target="closest div"
+    hx-swap="outerHTML"
+  >
+    <input type="text" name="titulo" placeholder="Nueva tarea" required>
+    <select name="prioridad">
+      <option value="baja">Baja</option>
+      <option value="media">Media</option>
+      <option value="alta">Alta</option>
+    </select>
+    <button type="submit">Añadir</button>
+  </form>
+
+  <ul>
+    {% for t in tareas %}
+      <li>
+        {{ t.titulo }} ({{ t.prioridad }})
+
+        <button
+          hx-patch="/proyectos/{{ proyecto_id }}/tareas/{{ t.id }}/completar"
+          hx-target="closest div"
+          hx-swap="outerHTML"
+          hx-trigger="click"
+        >
+          {% if t.completada %}Desmarcar{% else %}Completar{% endif %}
+        </button>
+
+        <select
+          name="prioridad"
+          hx-patch="/proyectos/{{ proyecto_id }}/tareas/{{ t.id }}/prioridad"
+          hx-target="closest div"
+          hx-swap="outerHTML"
+          hx-trigger="change"
+        >
+          <option value="baja"  {% if t.prioridad == "baja" %}selected{% endif %}>Baja</option>
+          <option value="media" {% if t.prioridad == "media" %}selected{% endif %}>Media</option>
+          <option value="alta"  {% if t.prioridad == "alta" %}selected{% endif %}>Alta</option>
+        </select>
+      </li>
+    {% endfor %}
+  </ul>
+</div>

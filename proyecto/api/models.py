@@ -11,7 +11,7 @@ Separamos los schemas en:
 from pydantic import BaseModel, field_validator
 from datetime import datetime
 from typing import Optional
-from src.domain.enums import PrioridadTarea, EstadoTarea
+from proyecto.src.domain.enums import PrioridadTarea, EstadoTarea
 
 
 class UsuarioRequest(BaseModel):
