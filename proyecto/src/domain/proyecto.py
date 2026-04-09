@@ -19,6 +19,29 @@ class Proyecto:
         self._lider = None
         self.lider = lider
 
+    def to_dict(self) -> dict:
+        return {
+            "nombre": self._nombre,
+            "descripcion": self._descripcion,
+            "fecha_creacion": self.fecha_creacion.isoformat(),
+            "lider": self._lider.to_dict() if self.lider else None,
+            "tareas": [t.to_dict() for t in self._tareas]
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> "Proyecto":
+        lider_obj = Usuario.from_dict(data["Lider"]) if data.get("lider") else None
+
+        p = cls(
+            nombre=data["nombre"],
+            descripcion=data.get("descripcion"),
+            lider=lider_obj
+        )
+        p.fecha_creacion = datetime.fromisoformat(data["fecha_creacion"])
+        if data.get("tareas"):
+            p._tareas = [Tarea.from_dict(t_data) for t_data in data["tareas"]]
+
+        return p
     @property
     def nombre(self) -> str:
         return self._nombre

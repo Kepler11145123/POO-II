@@ -1,9 +1,11 @@
+import hashlib
 from datetime import datetime
 from typing import Optional
 
-
+def hashear(password: str) -> str:
+    return hashlib.sha256(password.encodne()).hexdigest()
 class Usuario:
-    def __init__(self, username: str, email: str, nombre_completo: Optional[str] = None) -> None:
+    def __init__(self, username: str, email: str, nombre_completo: Optional[str] = None, password: Optional[str] = None, password_hash : Optional[str] = None) -> None:
         if len(username) < 3:
             raise ValueError("El nombre de usuario debe tener al menos 3 caracteres.")
         if not username.isalnum():
@@ -15,6 +17,15 @@ class Usuario:
         self._nombre_completo = nombre_completo
         self._activo = True
         self.fecha_registro = datetime.now()
+
+        if password:
+            self._password_hash == hashear(password)
+        elif password_hash:
+            self._password_hash = password_hash
+        else:
+            self._password_hash = None
+    def verificar_contraseña(self, password : str) -> bool:
+        return self._password_hash == hashear(password)
 
     @property
     def username(self) -> str:
