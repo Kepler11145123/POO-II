@@ -43,7 +43,7 @@ def completar_tarea_html(tarea_id: int, request: Request):
 )
 async def cambiar_prioridad_html(tarea_id: int, request: Request):
     """Cambia la prioridad y devuelve el item HTML actualizado."""
-    tarea = repositorio.obtener_tarea(tarea_id)
+    tarea = repositories.obtener_tarea(tarea_id)
     if not tarea:
         return HTMLResponse("<li>Tarea no encontrada.</li>", status_code=404)
 
@@ -70,7 +70,7 @@ async def cambiar_prioridad_html(tarea_id: int, request: Request):
     summary="Completar tarea (JSON)",
 )
 def completar_tarea_json(tarea_id: int):
-    tarea = repositorio.obtener_tarea(tarea_id)
+    tarea = repositories.obtener_tarea(tarea_id)
     if not tarea:
         raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
     tarea.completar()
@@ -83,7 +83,7 @@ def completar_tarea_json(tarea_id: int):
     summary="Cambiar prioridad (JSON)",
 )
 def cambiar_prioridad_json(tarea_id: int, body: CambiarPrioridadRequest):
-    tarea = repositorio.obtener_tarea(tarea_id)
+    tarea = repositories.obtener_tarea(tarea_id)
     if not tarea:
         raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
     tarea.cambiar_prioridad(body.prioridad)
