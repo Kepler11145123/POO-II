@@ -126,7 +126,7 @@ class TareaResponse(BaseModel):
     estado:           EstadoTarea
     prioridad:        Optional[PrioridadTarea]
     fecha_creacion:   datetime
-    fecha_completada: Optional[datetime]
+    fecha_completada: Optional[datetime] = None
 
 
 class CambiarPrioridadRequest(BaseModel):

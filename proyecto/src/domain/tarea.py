@@ -32,11 +32,11 @@ class Tarea:
             descripcion=data.get("descripcion"),
             prioridad=PrioridadTarea(data["prioridad"]) if data.get("prioridad") else None
         )
-        t._estado = EstadoTarea(data["Estado"])
+        t._estado = EstadoTarea(data["estado"])
         t.fecha_creacion = datetime.fromisoformat(data["fecha_creacion"])
         if data.get("fecha_completada"):
             t._fecha_completada = datetime.fromisoformat(data["fecha_completada"])
-            return t
+        return t
 
     def completar(self) -> None:
         self._estado = EstadoTarea.COMPLETADA

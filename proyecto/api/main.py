@@ -3,8 +3,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from proyecto.base_de_datos import init_db
-from proyecto.base_de_datos.repositories import UsuarioRepositoryJSON as UsuarioRepository
+from proyecto.src.infrastructure.csv_database import init_db
+from proyecto.src.infrastructure.repositories import UsuarioRepositoryJSON as UsuarioRepository
 
 from proyecto.api.routes.auth import router as auth_router
 from proyecto.api.usuarios_router import router as usuarios_router

@@ -1,0 +1,29 @@
+{
+  "tareas": {
+    "1": {
+      "titulo": "Entrega 4",
+      "descripcion": null,
+      "prioridad": "Alta",
+      "estado": "Pendiente",
+      "fecha_creacion": "2026-04-09T13:57:02.224809",
+      "fecha_completada": null
+    },
+    "2": {
+      "titulo": "Entrega 4",
+      "descripcion": null,
+      "prioridad": "Alta",
+      "estado": "Pendiente",
+      "fecha_creacion": "2026-04-09T14:00:42.839177",
+      "fecha_completada": null
+    },
+    "3": {
+      "titulo": "Entrega 4",
+      "descripcion": null,
+      "prioridad": "Alta",
+      "estado": "Pendiente",
+      "fecha_creacion": "2026-04-09T14:02:58.311999",
+      "fecha_completada": null
+    }
+  },
+  "next_id": 4
+}

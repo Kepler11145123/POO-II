@@ -1,6 +1,6 @@
-from proyecto.base_de_datos.repositories.usuario_repo import UsuarioRepositoryJSON
-from proyecto.base_de_datos.repositories.proyecto_repo import ProyectoRepositoryJSON
-from proyecto.base_de_datos.repositories.tarea_repo import TareaRepositoryJSON
+from proyecto.src.infrastructure.repositories.usuario_repo import UsuarioRepositoryJSON
+from proyecto.src.infrastructure.repositories.proyecto_repo import ProyectoRepositoryJSON
+from proyecto.src.infrastructure.repositories.tarea_repo import TareaRepositoryJSON
 
 def get_usuario_repo() -> UsuarioRepositoryJSON:
     return UsuarioRepositoryJSON()

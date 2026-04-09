@@ -8,7 +8,7 @@ GET  /usuarios/{id}     → obtener un usuario por ID
 from fastapi import APIRouter, HTTPException, status
 from proyecto.api.models  import UsuarioRequest, UsuarioResponse
 from proyecto.src.domain.usuario import Usuario
-from proyecto.base_de_datos.repositories import usuario_repo as repositorio
+from proyecto.src.infrastructure.repositories import usuario_repo as repositorio
 
 router = APIRouter(prefix="/usuarios", tags=["Usuarios"])
 

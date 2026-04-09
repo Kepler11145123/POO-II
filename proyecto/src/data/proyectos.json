@@ -1,0 +1,67 @@
+{
+  "proyectos": {
+    "1": {
+      "nombre": "POO",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:16.072035",
+      "lider": null,
+      "tareas": []
+    },
+    "2": {
+      "nombre": "Lolas",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:36.840682",
+      "lider": null,
+      "tareas": []
+    },
+    "3": {
+      "nombre": "Lolas",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:36.840682",
+      "lider": null,
+      "tareas": [
+        {
+          "titulo": "Entrega 4",
+          "descripcion": null,
+          "prioridad": "Alta",
+          "estado": "Pendiente",
+          "fecha_creacion": "2026-04-09T13:57:02.224809",
+          "fecha_completada": null
+        }
+      ]
+    },
+    "4": {
+      "nombre": "Lolas",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:36.840682",
+      "lider": null,
+      "tareas": [
+        {
+          "titulo": "Entrega 4",
+          "descripcion": null,
+          "prioridad": "Alta",
+          "estado": "Pendiente",
+          "fecha_creacion": "2026-04-09T14:00:42.839177",
+          "fecha_completada": null
+        }
+      ]
+    },
+    "5": {
+      "nombre": "Lolas",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:36.840682",
+      "lider": null,
+      "tareas": [
+        {
+          "titulo": "Entrega 4",
+          "descripcion": null,
+          "prioridad": "Alta",
+          "estado": "Pendiente",
+          "fecha_creacion": "2026-04-09T14:02:58.311999",
+          "fecha_completada": null
+        }
+      ]
+    }
+  },
+  "next_id": 6
+}

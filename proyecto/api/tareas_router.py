@@ -10,7 +10,7 @@ from fastapi.templating import Jinja2Templates
 from proyecto.api.models import TareaResponse, CambiarPrioridadRequest
 from proyecto.src.domain.enums import PrioridadTarea
 from proyecto.src.domain.tarea import Tarea
-from proyecto.base_de_datos.repositories import repositorio
+from proyecto.src.infrastructure import repositories
 
 router = APIRouter(prefix="/tareas", tags=["Tareas"])
 templates = Jinja2Templates(directory="proyecto/templates")
@@ -25,7 +25,7 @@ templates = Jinja2Templates(directory="proyecto/templates")
 )
 def completar_tarea_html(tarea_id: int, request: Request):
     """Completa la tarea y devuelve el item HTML actualizado."""
-    tarea = repositorio.obtener_tarea(tarea_id)
+    tarea = repositories.obtener_tarea(tarea_id)
     if not tarea:
         return HTMLResponse("<li>Tarea no encontrada.</li>", status_code=404)
     tarea.completar()
