@@ -53,7 +53,7 @@ class UsuarioResponse(BaseModel):
     id:              int
     username:        str
     email:           str
-    nombre_completo: Optional[str]
+    nombre_completo: Optional[str] = None
     activo:          bool
     fecha_registro:  datetime
 
@@ -88,8 +88,8 @@ class ProyectoResponse(BaseModel):
     """Datos que devuelve la API al consultar un proyecto."""
     id:            int
     nombre:        str
-    descripcion:   Optional[str]
-    lider_id:      Optional[int]
+    descripcion:   Optional[str] = None
+    lider_id:      Optional[int] = None
     total_tareas:  int
     fecha_creacion: datetime
 
@@ -122,7 +122,7 @@ class TareaResponse(BaseModel):
     """Datos que devuelve la API al consultar una tarea."""
     id:               int
     titulo:           str
-    descripcion:      Optional[str]
+    descripcion:      Optional[str] = None
     estado:           EstadoTarea
     prioridad:        Optional[PrioridadTarea]
     fecha_creacion:   datetime
