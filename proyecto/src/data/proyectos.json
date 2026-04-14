@@ -6,6 +6,7 @@
       "fecha_creacion": "2026-04-09T13:55:16.072035",
       "lider": null,
       "tareas": []
+<<<<<<< HEAD
     },
     "2": {
       "nombre": "Lolas",
@@ -94,4 +95,9 @@
     }
   },
   "next_id": 9
+=======
+    }
+  },
+  "next_id": 10
+>>>>>>> f307b50a86b3fecca1148f7335b41ac230cd5604
 }
