@@ -26,6 +26,29 @@ class Usuario:
             self._password_hash = None
     def verificar_contraseña(self, password : str) -> bool:
         return self._password_hash == hashear(password)
+    
+    def to_dict(self) -> dict:
+        return {
+            "username": self._username,
+            "email": self._email,
+            "nombre_completo": self._nombre_completo,
+            "activo": self._activo,
+            "password_hash": self._password_hash,
+            "fecha_registro": self.fecha_registro.isoformat()
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict) -> "Usuario":
+        u = cls(
+            username=data["username"],
+            email=data["email"],
+            nombre_completo=data.get("nombre_completo"),
+            password_hash=data.get("password_hash")
+        )
+        u._activo = data.get("activo", True)
+        u.fecha_registro = datetime.fromisoformat(data["fecha_registro"])
+
+        return u
 
     @property
     def username(self) -> str:

@@ -42,6 +42,7 @@ class Proyecto:
             p._tareas = [Tarea.from_dict(t_data) for t_data in data["tareas"]]
 
         return p
+    
     @property
     def nombre(self) -> str:
         return self._nombre
