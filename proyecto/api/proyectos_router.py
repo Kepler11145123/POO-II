@@ -80,6 +80,21 @@ async def agregar_tarea_html(
     tareas = [_a_response_tarea(idx, t) for idx, t in enumerate(proyecto.tareas)]
     return templates.TemplateResponse(request, "tareas/lista.html", {"tareas": tareas, "proyecto_id": proyecto_id})
 
+@router.delete("/{proyecto_id}", response_class=HTMLResponse, include_in_schema=False)
+def eliminar_proyecto_html(
+    proyecto_id: int,
+    request: Request,
+    repo: IProyectoRepository = Depends(get_proyecto_repo)
+):
+    try:
+        repo.eliminar(proyecto_id)
+    except Exception as e:
+        proyectos = [_a_response(pid, p) for pid, p in repo.listar()]
+        return templates.TemplateResponse(request, "proyectos/lista.html", {"proyectos": proyectos, "error": f"No se pudo eliminar: {str(e)}"})
+    
+    proyectos = [_a_response(pid, p) for pid, p in repo.listar()]
+    return templates.TemplateResponse(request, "proyectos/lista.html", {"proyectos": proyectos})
+
 # --- Helpers ---
 
 def _a_response(pid: int, proyecto: Proyecto) -> ProyectoResponse:

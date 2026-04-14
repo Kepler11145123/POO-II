@@ -23,7 +23,15 @@
       "estado": "Pendiente",
       "fecha_creacion": "2026-04-09T14:02:58.311999",
       "fecha_completada": null
+    },
+    "4": {
+      "titulo": "lolas",
+      "descripcion": null,
+      "prioridad": "Alta",
+      "estado": "Pendiente",
+      "fecha_creacion": "2026-04-14T06:52:12.473865",
+      "fecha_completada": null
     }
   },
-  "next_id": 4
+  "next_id": 5
 }
