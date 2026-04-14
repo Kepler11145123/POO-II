@@ -27,3 +27,6 @@ class _Repositorio:
         return _tarea_repo.listar()
 
 repositorio = _Repositorio()
+
+obtener_tarea = repositorio.obtener_tarea
+guardar_tarea = repositorio.guardar_tarea

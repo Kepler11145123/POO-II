@@ -75,7 +75,23 @@
       "fecha_creacion": "2026-04-14T06:46:55.617252",
       "lider": null,
       "tareas": []
+    },
+    "8": {
+      "nombre": "LOL",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-14T06:28:41.263399",
+      "lider": null,
+      "tareas": [
+        {
+          "titulo": "Tareita",
+          "descripcion": null,
+          "prioridad": "Alta",
+          "estado": "Pendiente",
+          "fecha_creacion": "2026-04-14T06:49:31.504257",
+          "fecha_completada": null
+        }
+      ]
     }
   },
-  "next_id": 8
+  "next_id": 9
 }
