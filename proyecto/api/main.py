@@ -3,8 +3,10 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+
+
 from proyecto.src.infrastructure.csv_database import init_db
-from proyecto.src.infrastructure.repositories import UsuarioRepositoryJSON as UsuarioRepository
+from proyecto.src.infrastructure.repositories import UsuarioRepository as UsuarioRepository
 
 from proyecto.api.routes.auth import router as auth_router
 from proyecto.api.usuarios_router import router as usuarios_router
@@ -39,6 +41,7 @@ app.include_router(auth_router)
 app.include_router(usuarios_router)
 app.include_router(proyectos_router)
 app.include_router(tareas_router)
+app.include_router(auth_router)
 
 # Inicializa los CSVs al arrancar (equivalente a create_all() en SQLAlchemy)
 @app.on_event("startup")

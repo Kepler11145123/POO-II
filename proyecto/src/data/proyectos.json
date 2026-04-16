@@ -6,7 +6,14 @@
       "fecha_creacion": "2026-04-09T13:55:16.072035",
       "lider": null,
       "tareas": []
+    },
+    "10": {
+      "nombre": "Alimentar gato",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-16T06:59:35.184278",
+      "lider": null,
+      "tareas": []
     }
   },
-  "next_id": 10
+  "next_id": 14
 }

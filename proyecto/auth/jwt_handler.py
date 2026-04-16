@@ -1,19 +1,44 @@
-from datetime import datetime, timedelta
-from jose import jwt, JWTError
+import os
+from jose import jwt
+import datetime
+from dotenv import load_dotenv
 
-SECRET_KEY = "CAMBIAR-ESTO"
-ALGORITHM = "HS256"
+# Cargar variables de entorno desde .env
+load_dotenv()
 
-def crear_token(username: str, usuario_id: int) -> str:
+# Clave secreta (debe estar en .env y nunca en el código)
+JWT_SECRET = os.getenv("JWT_SECRET", "supersecretkey")
+JWT_ALGORITHM = "HS256"
+
+# Generar un token JWT
+def crear_token(user_id):
+    if not user_id:
+        raise ValueError("El ID de usuario es obligatorio")
+    
     payload = {
-        "sub": username,
-        "id": usuario_id,
-        "exp": datetime.utcnow() + timedelta(minutes=60)
+        "sub": str(user_id),                # Subject (usuario)
+        "iss": "miapp.com",                 # Emisor
+        "aud": "miapp-usuarios",            # Audiencia
+        "iat": datetime.datetime.utcnow(),  # Fecha de emisión
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=15)  # Expira en 15 min
     }
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    
+    token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+    return token
 
-def verificar_token(token: str) -> dict:
+# Verificar y decodificar un token JWT
+def verificar_token(token):
     try:
-        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError:
-        raise ValueError("Token invalido o expirado")
+        decoded = jwt.decode(
+            token,
+            JWT_SECRET,
+            algorithms=[JWT_ALGORITHM],
+            issuer="miapp.com",
+            audience="miapp-usuarios"
+        )
+        return decoded
+    except jwt.ExpiredSignatureError:
+        raise ValueError("El token ha expirado")
+    except jwt.InvalidTokenError:
+        raise ValueError("Token inválido")
+
