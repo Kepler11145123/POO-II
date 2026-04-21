@@ -25,21 +25,21 @@
       "fecha_completada": null
     },
     "4": {
-<<<<<<< HEAD
       "titulo": "Tareita",
       "descripcion": null,
       "prioridad": "Alta",
       "estado": "Pendiente",
       "fecha_creacion": "2026-04-14T06:49:31.504257",
-=======
+      "fecha_completada": null
+    },
+    "5": {
       "titulo": "lolas",
       "descripcion": null,
       "prioridad": "Alta",
       "estado": "Pendiente",
       "fecha_creacion": "2026-04-14T06:52:12.473865",
->>>>>>> f307b50a86b3fecca1148f7335b41ac230cd5604
       "fecha_completada": null
     }
   },
-  "next_id": 5
+  "next_id": 6
 }
