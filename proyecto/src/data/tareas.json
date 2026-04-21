@@ -39,7 +39,35 @@
       "estado": "Pendiente",
       "fecha_creacion": "2026-04-14T06:52:12.473865",
       "fecha_completada": null
+    },
+    "5": {
+      "titulo": "Alimenta a tu gato",
+      "descripcion": null,
+      "prioridad": "Alta",
+      "estado": "Pendiente",
+      "fecha_creacion": "2026-04-16T07:00:02.153677",
+      "fecha_completada": null
+    },
+    "6": {
+      "titulo": "Alimenta a tu gato",
+      "descripcion": null,
+      "prioridad": "Alta",
+      "estado": "Pendiente",
+      "fecha_creacion": "2026-04-16T07:00:18.202931",
+      "fecha_completada": null
+    },
+    "7": {
+      "titulo": "Tarea 1",
+      "descripcion": null,
+      "prioridad": "Alta",
+      "estado": "Pendiente",
+      "fecha_creacion": "2026-04-16T07:00:43.035931",
+      "fecha_completada": null
     }
   },
+<<<<<<< HEAD
   "next_id": 6
+=======
+  "next_id": 8
+>>>>>>> 8ac51687d3f2f87c04eb5bafc8bd3f859048ac3a
 }

@@ -1,41 +1,26 @@
-import json
-from ..csv_database import DATA_DIR
-from proyecto.src.domain.proyecto import Proyecto
-from .interfaces import IProyectoRepository
+from sqlalchemy.orm import Session
+from database.models import Proyecto
 
-class ProyectoRepositoryJSON(IProyectoRepository):
-    def __init__(self):
-        self.archivo = DATA_DIR / "proyectos.json"
+class ProyectoRepository:
+    def __init__(self, db: Session):
+        self.db = db
 
-    def _leer_todo(self):
-        with open(self.archivo, "r", encoding="utf-8") as f:
-            return json.load(f)
+    def guardar(self, proyecto: Proyecto) -> Proyecto:
+        self.db.add(proyecto)
+        self.db.commit()
+        self.db.refresh(proyecto)
+        return proyecto
 
-    def _guardar_todo(self, datos):
-        with open(self.archivo, "w", encoding="utf-8") as f:
-            json.dump(datos, f, indent=2, ensure_ascii=False)
+    def obtener(self, proyecto_id: str) -> Proyecto | None:
+        return self.db.query(Proyecto).filter(Proyecto.id == proyecto_id).first()
 
-    def guardar(self, proyecto: Proyecto):
-        datos = self._leer_todo()
-        nuevo_id = datos["next_id"]
-        datos["proyectos"][str(nuevo_id)] = proyecto.to_dict()
-        datos["next_id"] += 1
-        self._guardar_todo(datos)
-        return nuevo_id, proyecto
+    def listar(self, owner_id: str) -> list[Proyecto]:
+        return self.db.query(Proyecto).filter(Proyecto.owner_id == owner_id).all()
 
-    def obtener(self, proyecto_id: int):
-        datos = self._leer_todo()
-        p_data = datos["proyectos"].get(str(proyecto_id))
-        return Proyecto.from_dict(p_data) if p_data else None
-
-    def listar(self):
-        datos = self._leer_todo()
-        return [(int(pid), Proyecto.from_dict(p)) for pid, p in datos["proyectos"].items()]
-
-    def eliminar(self, proyecto_id: int):
-        datos = self._leer_todo()
-        if str(proyecto_id) in datos["proyectos"]:
-            del datos["proyectos"][str(proyecto_id)]
-            self._guardar_todo(datos)
-            return True
-        return False
+    def eliminar(self, proyecto_id: str) -> bool:
+        proyecto = self.obtener(proyecto_id)
+        if not proyecto:
+            return False
+        self.db.delete(proyecto)
+        self.db.commit()
+        return True

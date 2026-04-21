@@ -1,7 +1,8 @@
-from .usuario_repo import UsuarioRepositoryJSON
-from .proyecto_repo import ProyectoRepositoryJSON
-from .tarea_repo import TareaRepositoryJSON
+from .usuario_repo import UsuarioRepository
+from .proyecto_repo import ProyectoRepository
+from .tarea_repo import TareaRepository
 
+<<<<<<< HEAD
 _usuario_repo = UsuarioRepositoryJSON()
 _proyecto_repo = ProyectoRepositoryJSON()
 _tarea_repo = TareaRepositoryJSON()
@@ -30,3 +31,6 @@ repositorio = _Repositorio()
 
 obtener_tarea = repositorio.obtener_tarea
 guardar_tarea = repositorio.guardar_tarea
+=======
+__all__ = ["UsuarioRepository", "ProyectoRepository", "TareaRepository"]
+>>>>>>> 8ac51687d3f2f87c04eb5bafc8bd3f859048ac3a

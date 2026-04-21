@@ -1,52 +1,29 @@
-import json
-from pathlib import Path
-from ..csv_database import DATA_DIR
-from proyecto.src.domain.usuario import Usuario
-from .interfaces import IUsuarioRepository
+from sqlalchemy.orm import Session
+from database.models import Usuario
 
-class UsuarioRepositoryJSON(IUsuarioRepository):
-    def __init__(self):
-        self.archivo = DATA_DIR / "usuarios.json"
+class UsuarioRepository:
+    def __init__(self, db: Session):
+        self.db = db
 
-    def _leer_todo(self):
-        with open(self.archivo, "r", encoding="utf-8") as f:
-            return json.load(f)
+    def guardar(self, usuario: Usuario) -> Usuario:
+        self.db.add(usuario)
+        self.db.commit()
+        self.db.refresh(usuario)
+        return usuario
 
-    def _guardar_todo(self, datos):
-        with open(self.archivo, "w", encoding="utf-8") as f:
-            json.dump(datos, f, indent=2, ensure_ascii=False)
+    def obtener(self, usuario_id: str) -> Usuario | None:
+        return self.db.query(Usuario).filter(Usuario.id == usuario_id).first()
 
-    def guardar(self, usuario: Usuario):
-        datos = self._leer_todo()
-        nuevo_id = datos["next_id"]
-        
-        # Usamos el to_dict que creamos antes
-        datos["usuarios"][str(nuevo_id)] = usuario.to_dict()
-        datos["next_id"] += 1
-        
-        self._guardar_todo(datos)
-        return nuevo_id, usuario
+    def obtener_por_username(self, username: str) -> Usuario | None:
+        return self.db.query(Usuario).filter(Usuario.username == username).first()
 
-    def obtener_por_username(self, username: str):
-        datos = self._leer_todo()
-        for uid, u_data in datos["usuarios"].items():
-            if u_data["username"] == username:
-                return int(uid), Usuario.from_dict(u_data)
-        return None
+    def listar(self) -> list[Usuario]:
+        return self.db.query(Usuario).all()
 
-    def obtener(self, usuario_id: int):
-        datos = self._leer_todo()
-        u_data = datos["usuarios"].get(str(usuario_id))
-        return Usuario.from_dict(u_data) if u_data else None
-
-    def listar(self):
-        datos = self._leer_todo()
-        return [(int(uid), Usuario.from_dict(u)) for uid, u in datos["usuarios"].items()]
-
-    def eliminar(self, usuario_id: int):
-        datos = self._leer_todo()
-        if str(usuario_id) in datos["usuarios"]:
-            del datos["usuarios"][str(usuario_id)]
-            self._guardar_todo(datos)
-            return True
-        return False
+    def eliminar(self, usuario_id: str) -> bool:
+        usuario = self.obtener(usuario_id)
+        if not usuario:
+            return False
+        self.db.delete(usuario)
+        self.db.commit()
+        return True
