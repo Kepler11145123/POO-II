@@ -1,4 +1,12 @@
 {
-  "tareas": {},
+  "tareas": {
+    "0": {
+      "titulo": "Mi tarea de prueba",
+      "descripcion": "Si esto aparece, el 404 desaparecerá",
+      "prioridad": "ALTA",
+      "estado": "PENDIENTE",
+      "fecha_creacion": "2024-05-20T10:00:00"
+    }
+  },
   "next_id": 1
 }

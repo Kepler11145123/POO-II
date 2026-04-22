@@ -6,6 +6,102 @@
       "fecha_creacion": "2026-04-09T13:55:16.072035",
       "lider": null,
       "tareas": []
+<<<<<<< HEAD
+<<<<<<< HEAD
+    },
+    "2": {
+      "nombre": "Lolas",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:36.840682",
+      "lider": null,
+      "tareas": []
+    },
+    "3": {
+      "nombre": "Lolas",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:36.840682",
+      "lider": null,
+      "tareas": [
+        {
+          "titulo": "Entrega 4",
+          "descripcion": null,
+          "prioridad": "Alta",
+          "estado": "Pendiente",
+          "fecha_creacion": "2026-04-09T13:57:02.224809",
+          "fecha_completada": null
+        }
+      ]
+    },
+    "4": {
+      "nombre": "Lolas",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:36.840682",
+      "lider": null,
+      "tareas": [
+        {
+          "titulo": "Entrega 4",
+          "descripcion": null,
+          "prioridad": "Alta",
+          "estado": "Pendiente",
+          "fecha_creacion": "2026-04-09T14:00:42.839177",
+          "fecha_completada": null
+        }
+      ]
+    },
+    "5": {
+      "nombre": "Lolas",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-09T13:55:36.840682",
+      "lider": null,
+      "tareas": [
+        {
+          "titulo": "Entrega 4",
+          "descripcion": null,
+          "prioridad": "Alta",
+          "estado": "Pendiente",
+          "fecha_creacion": "2026-04-09T14:02:58.311999",
+          "fecha_completada": null
+        }
+      ]
+    },
+    "6": {
+      "nombre": "LOL",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-14T06:28:41.263399",
+      "lider": null,
+      "tareas": []
+    },
+    "7": {
+      "nombre": "dfgdfgdfgdf",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-14T06:46:55.617252",
+      "lider": null,
+      "tareas": []
+    },
+    "8": {
+      "nombre": "LOL",
+      "descripcion": null,
+      "fecha_creacion": "2026-04-14T06:28:41.263399",
+      "lider": null,
+      "tareas": [
+        {
+          "titulo": "Tareita",
+          "descripcion": null,
+          "prioridad": "Alta",
+          "estado": "Pendiente",
+          "fecha_creacion": "2026-04-14T06:49:31.504257",
+          "fecha_completada": null
+        }
+      ]
+    }
+  },
+  "next_id": 9
+=======
+    }
+  },
+  "next_id": 10
+>>>>>>> f307b50a86b3fecca1148f7335b41ac230cd5604
+=======
     },
     "10": {
       "nombre": "Alimentar gato",
@@ -16,4 +112,5 @@
     }
   },
   "next_id": 14
+>>>>>>> 8ac51687d3f2f87c04eb5bafc8bd3f859048ac3a
 }
