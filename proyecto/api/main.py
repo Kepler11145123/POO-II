@@ -3,10 +3,8 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-
-
 from proyecto.src.infrastructure.csv_database import init_db
-from proyecto.src.infrastructure.repositories import UsuarioRepository as UsuarioRepository
+from proyecto.src.infrastructure.repositories import UsuarioRepository
 
 from proyecto.api.routes.auth import router as auth_router
 from proyecto.api.usuarios_router import router as usuarios_router
@@ -32,40 +30,27 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# templates y static para HTMX y Jinja2
-templates= Jinja2Templates(directory="proyecto/templates")
+templates = Jinja2Templates(directory="proyecto/templates")
 app.mount("/static", StaticFiles(directory="proyecto/static"), name="static")
 
-# Registra los routers — cada uno agrupa endpoints de una entidad
+# Registra los routers — cada uno solo una vez
 app.include_router(auth_router)
 app.include_router(usuarios_router)
 app.include_router(proyectos_router)
 app.include_router(tareas_router)
-app.include_router(auth_router)
 
-# Inicializa los CSVs al arrancar (equivalente a create_all() en SQLAlchemy)
 @app.on_event("startup")
 def startup():
     init_db()
 
 @app.get("/status", tags=["Root"], summary="Estado de la API")
 def root():
-    """Verifica que la API esté corriendo."""
     return {"mensaje": "API funcionando", "docs": "/docs"}
 
-# Rutas HTML que devuelven templates jinja2
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def index(request: Request):
     return templates.TemplateResponse(
-    request,
-    "index.html",
-    {"request": request}
-)
-
-# Ejemplo de uso en una ruta
-@app.post("/usuarios/")
-def crear_usuario(username: str, email: str):
-    repo = UsuarioRepository()
-    usuario = repo.crear(username=username, email=email)
-    return usuario
-
+        request,
+        "index.html",
+        {"request": request}
+    )

@@ -3,9 +3,10 @@ from datetime import datetime
 from typing import Optional
 
 def hashear(password: str) -> str:
-    return hashlib.sha256(password.encodne()).hexdigest()
+    return hashlib.sha256(password.encode()).hexdigest()  # corregido encodne -> encode
+
 class Usuario:
-    def __init__(self, username: str, email: str, nombre_completo: Optional[str] = None, password: Optional[str] = None, password_hash : Optional[str] = None) -> None:
+    def __init__(self, username: str, email: str, nombre_completo: Optional[str] = None, password: Optional[str] = None, password_hash: Optional[str] = None) -> None:
         if len(username) < 3:
             raise ValueError("El nombre de usuario debe tener al menos 3 caracteres.")
         if not username.isalnum():
@@ -19,14 +20,15 @@ class Usuario:
         self.fecha_registro = datetime.now()
 
         if password:
-            self._password_hash == hashear(password)
+            self._password_hash = hashear(password)  # corregido == -> =
         elif password_hash:
             self._password_hash = password_hash
         else:
             self._password_hash = None
-    def verificar_contraseña(self, password : str) -> bool:
+
+    def verificar_password(self, password: str) -> bool:  # corregido nombre del método
         return self._password_hash == hashear(password)
-    
+
     def to_dict(self) -> dict:
         return {
             "username": self._username,
@@ -36,7 +38,7 @@ class Usuario:
             "password_hash": self._password_hash,
             "fecha_registro": self.fecha_registro.isoformat()
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> "Usuario":
         u = cls(
@@ -47,7 +49,6 @@ class Usuario:
         )
         u._activo = data.get("activo", True)
         u.fecha_registro = datetime.fromisoformat(data["fecha_registro"])
-
         return u
 
     @property
@@ -61,7 +62,7 @@ class Usuario:
     @email.setter
     def email(self, valor: str) -> None:
         partes = valor.split("@")
-        if len(partes) != 2 or not partes[0] or not partes[0] or "." not in partes[1] or not partes[1].split(".")[-1]:
+        if len(partes) != 2 or not partes[0] or "." not in partes[1] or not partes[1].split(".")[-1]:
             raise ValueError(f"Email inválido: {valor}")
         self._email = valor
 

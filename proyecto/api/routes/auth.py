@@ -1,20 +1,27 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import Depends
-from proyecto.auth.jwt_handler import crear_token, verificar_token
+from proyecto.auth.jwt_handler import crear_token
+from proyecto.api.dependencies import get_usuario_repo
+from proyecto.src.infrastructure.repositories.usuario_repo import UsuarioRepository
 
-router = APIRouter(prefix="/auth", tags=["auth"])
-
-# Usuarios en memoria (o tu repositorio)
-fake_users = {
-    "yanier": {"id": "1", "username": "yanier", "hashed_password": "<hash aquí>"}
-}
+router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login")
-def login(form: OAuth2PasswordRequestForm = Depends()):
-    user = fake_users.get(form.username)
-    if not user or not verificar_token(form.password, user["hashed_password"]):
+def login(
+    form: OAuth2PasswordRequestForm = Depends(),
+    repo: UsuarioRepository = Depends(get_usuario_repo)
+):
+    resultado = repo.obtener_por_username(form.username)
+
+    if not resultado:
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
-    
-    token = crear_token({"sub": user["id"]})
-    return {"access_token": token, "token_type": "bearer"}
+
+    uid, usuario = resultado
+
+    if not usuario.verificar_password(form.password):
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+
+    return {
+        "access_token": crear_token(usuario._username, uid),
+        "token_type": "bearer"
+    }

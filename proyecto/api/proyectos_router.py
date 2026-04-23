@@ -71,9 +71,9 @@ async def agregar_tarea_html(
     
     try:
         nueva_tarea = Tarea(titulo=form.get("titulo", ""), prioridad=PrioridadTarea.ALTA)
-        repo_t.guardar(nueva_tarea) # Persistimos la tarea individual
-        proyecto.agregar_tarea(nueva_tarea) # El dominio maneja la relación
-        repo_p.guardar(proyecto) # Guardamos el proyecto con el nuevo ID de tarea
+        repo_t.guardar(nueva_tarea, proyecto_id)  # se pasa el proyecto_id
+        proyecto.agregar_tarea(nueva_tarea)
+        repo_p.guardar(proyecto)
     except ValueError as e:
         return HTMLResponse(f"<p>Error: {e}</p>", status_code=400)
 

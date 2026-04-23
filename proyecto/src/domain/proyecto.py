@@ -27,10 +27,10 @@ class Proyecto:
             "lider": self._lider.to_dict() if self.lider else None,
             "tareas": [t.to_dict() for t in self._tareas]
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> "Proyecto":
-        lider_obj = Usuario.from_dict(data["Lider"]) if data.get("lider") else None
+        lider_obj = Usuario.from_dict(data["lider"]) if data.get("lider") else None  # corregido "Lider" -> "lider"
 
         p = cls(
             nombre=data["nombre"],
@@ -42,7 +42,7 @@ class Proyecto:
             p._tareas = [Tarea.from_dict(t_data) for t_data in data["tareas"]]
 
         return p
-    
+
     @property
     def nombre(self) -> str:
         return self._nombre

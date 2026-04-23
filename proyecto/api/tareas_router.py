@@ -1,16 +1,11 @@
-"""
-tareas_router.py — Endpoints para operaciones sobre Tarea.
-
-PATCH /tareas/{id}/completar    → marca completada, devuelve item HTML
-PATCH /tareas/{id}/prioridad    → cambia prioridad, devuelve item HTML
-"""
-from fastapi import APIRouter, HTTPException, Request, status
+from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from proyecto.api.models import TareaResponse, CambiarPrioridadRequest
+from proyecto.api.dependencies import get_tarea_repo
 from proyecto.src.domain.enums import PrioridadTarea
 from proyecto.src.domain.tarea import Tarea
-from proyecto.src.infrastructure import repositories
+from proyecto.src.infrastructure.repositories.tarea_repo import TareaRepository
 
 router = APIRouter(prefix="/tareas", tags=["Tareas"])
 templates = Jinja2Templates(directory="proyecto/templates")
@@ -23,12 +18,16 @@ templates = Jinja2Templates(directory="proyecto/templates")
     response_class=HTMLResponse,
     include_in_schema=False,
 )
-def completar_tarea_html(tarea_id: int, request: Request):
-    """Completa la tarea y devuelve el item HTML actualizado."""
-    tarea = repositories.obtener_tarea(tarea_id)
+def completar_tarea_html(
+    tarea_id: int,
+    request: Request,
+    repo: TareaRepository = Depends(get_tarea_repo)
+):
+    tarea = repo.obtener(tarea_id)
     if not tarea:
         return HTMLResponse("<li>Tarea no encontrada.</li>", status_code=404)
     tarea.completar()
+    repo.actualizar(tarea_id, tarea)
     return templates.TemplateResponse(
         request,
         "tareas/item.html",
@@ -41,9 +40,12 @@ def completar_tarea_html(tarea_id: int, request: Request):
     response_class=HTMLResponse,
     include_in_schema=False,
 )
-async def cambiar_prioridad_html(tarea_id: int, request: Request):
-    """Cambia la prioridad y devuelve el item HTML actualizado."""
-    tarea = repositories.obtener_tarea(tarea_id)
+async def cambiar_prioridad_html(
+    tarea_id: int,
+    request: Request,
+    repo: TareaRepository = Depends(get_tarea_repo)
+):
+    tarea = repo.obtener(tarea_id)
     if not tarea:
         return HTMLResponse("<li>Tarea no encontrada.</li>", status_code=404)
 
@@ -55,6 +57,7 @@ async def cambiar_prioridad_html(tarea_id: int, request: Request):
         return HTMLResponse("<li>Prioridad inválida.</li>", status_code=422)
 
     tarea.cambiar_prioridad(nueva_prioridad)
+    repo.actualizar(tarea_id, tarea)
     return templates.TemplateResponse(
         request,
         "tareas/item.html",
@@ -69,11 +72,15 @@ async def cambiar_prioridad_html(tarea_id: int, request: Request):
     response_model=TareaResponse,
     summary="Completar tarea (JSON)",
 )
-def completar_tarea_json(tarea_id: int):
-    tarea = repositories.obtener_tarea(tarea_id)
+def completar_tarea_json(
+    tarea_id: int,
+    repo: TareaRepository = Depends(get_tarea_repo)
+):
+    tarea = repo.obtener(tarea_id)
     if not tarea:
         raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
     tarea.completar()
+    repo.actualizar(tarea_id, tarea)
     return _a_response(tarea_id, tarea)
 
 
@@ -82,11 +89,16 @@ def completar_tarea_json(tarea_id: int):
     response_model=TareaResponse,
     summary="Cambiar prioridad (JSON)",
 )
-def cambiar_prioridad_json(tarea_id: int, body: CambiarPrioridadRequest):
-    tarea = repositories.obtener_tarea(tarea_id)
+def cambiar_prioridad_json(
+    tarea_id: int,
+    body: CambiarPrioridadRequest,
+    repo: TareaRepository = Depends(get_tarea_repo)
+):
+    tarea = repo.obtener(tarea_id)
     if not tarea:
         raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
     tarea.cambiar_prioridad(body.prioridad)
+    repo.actualizar(tarea_id, tarea)
     return _a_response(tarea_id, tarea)
 
 
