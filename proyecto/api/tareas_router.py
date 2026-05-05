@@ -5,7 +5,7 @@ from proyecto.api.models import TareaResponse, CambiarPrioridadRequest
 from proyecto.api.dependencies import get_tarea_repo
 from proyecto.src.domain.enums import PrioridadTarea
 from proyecto.src.domain.tarea import Tarea
-from proyecto.src.infrastructure.repositories.tarea_repo import TareaRepository
+from database.repositories.tarea_repo import TareaRepository
 
 router = APIRouter(prefix="/tareas", tags=["Tareas"])
 templates = Jinja2Templates(directory="proyecto/templates")
@@ -101,6 +101,21 @@ def cambiar_prioridad_json(
     repo.actualizar(tarea_id, tarea)
     return _a_response(tarea_id, tarea)
 
+@router.get("/json", response_model=list[TareaResponse])
+def listar_tareas_json(repo: TareaRepository = Depends(get_tarea_repo)):
+    return [_a_response(tid, t) for tid, t in repo.listar()]
+
+@router.get("/json/{tarea_id}", response_model=TareaResponse)
+def obtener_tarea_json(tarea_id: int, repo: TareaRepository = Depends(get_tarea_repo)):
+    tarea = repo.obtener(tarea_id)
+    if not tarea:
+        raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
+    return _a_response(tarea_id, tarea)
+
+@router.delete("/json/{tarea_id}", status_code=204)
+def eliminar_tarea_json(tarea_id: int, repo: TareaRepository = Depends(get_tarea_repo)):
+    if not repo.eliminar(tarea_id):
+        raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
 
 # ─ Helper ─
 

@@ -32,6 +32,18 @@ class UsuarioRepository:
     def listar(self):
         return [(orm.id, self._a_dominio(orm)) for orm in self.db.query(UsuarioORM).all()]
 
+    def actualizar(self, usuario_id: int, usuario: Usuario):
+        orm = self.db.query(UsuarioORM).filter(UsuarioORM.id == usuario_id).first()
+        if not orm:
+            return None
+        orm.email           = usuario.email
+        orm.nombre_completo = usuario._nombre_completo
+        orm.activo          = usuario._activo
+        orm.password_hash   = usuario._password_hash
+        self.db.commit()
+        self.db.refresh(orm)
+        return orm.id, usuario
+    
     def eliminar(self, usuario_id: int) -> bool:
         orm = self.db.query(UsuarioORM).filter(UsuarioORM.id == usuario_id).first()
         if not orm:
