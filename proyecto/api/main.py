@@ -2,11 +2,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from database.connection import engine
+from database.base import Base
 
-from proyecto.src.infrastructure.csv_database import init_db
-from proyecto.src.infrastructure.repositories import UsuarioRepository
-
-from proyecto.api.routes.auth import router as auth_router
+from proyecto.api.auth_router import router as auth_router
 from proyecto.api.usuarios_router import router as usuarios_router
 from proyecto.api.proyectos_router import router as proyectos_router
 from proyecto.api.tareas_router import router as tareas_router
@@ -41,7 +40,7 @@ app.include_router(tareas_router)
 
 @app.on_event("startup")
 def startup():
-    init_db()
+    Base.metadata.create_all(bind=engine)
 
 @app.get("/status", tags=["Root"], summary="Estado de la API")
 def root():

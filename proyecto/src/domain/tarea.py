@@ -14,6 +14,7 @@ class Tarea:
         self._estado = EstadoTarea.PENDIENTE
         self.fecha_creacion = datetime.now()
         self._fecha_completada: Optional[datetime] = None
+        self._id = None
 
     def to_dict(self) -> dict:
         return {
