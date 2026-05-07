@@ -43,7 +43,11 @@ def listar_tareas_html(proyecto_id: int, request: Request, repo: ProyectoReposit
     proyecto = repo.obtener(proyecto_id)
     if not proyecto:
         return HTMLResponse("<p>No encontrado</p>", status_code=404)
+<<<<<<< HEAD
     tareas = [_a_response_tarea(t._id, t) for t in proyecto.tareas]
+=======
+    tareas = [_a_response_tarea(idx, t) for idx, t in enumerate(proyecto.tareas)]
+>>>>>>> d272420501a9b8b7d38bd039dda37842222aebe7
     return templates.TemplateResponse(request, "tareas/lista.html", {"tareas": tareas, "proyecto_id": proyecto_id})
 
 @router.post("/{proyecto_id}/tareas", response_class=HTMLResponse, include_in_schema=False)
@@ -59,7 +63,11 @@ async def agregar_tarea_html(
         nueva_tarea = Tarea(titulo=form.get("titulo", ""), prioridad=PrioridadTarea.ALTA)
         repo_t.guardar(nueva_tarea, proyecto_id)
         proyecto.agregar_tarea(nueva_tarea)
+<<<<<<< HEAD
         repo.actualizar(proyecto_id, proyecto)
+=======
+        repo.guardar(proyecto)
+>>>>>>> d272420501a9b8b7d38bd039dda37842222aebe7
     except ValueError as e:
         return HTMLResponse(f"<p>Error: {e}</p>", status_code=400)
     tareas = [_a_response_tarea(idx, t) for idx, t in enumerate(proyecto.tareas)]
