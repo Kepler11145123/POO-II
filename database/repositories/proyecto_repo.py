@@ -32,10 +32,6 @@ class ProyectoRepository:
         orm.nombre      = proyecto.nombre
         orm.descripcion = proyecto.descripcion
         orm.lider_id    = proyecto.lider.id if proyecto.lider else None
-<<<<<<< HEAD
-=======
-        orm.activo      = proyecto._activo
->>>>>>> d272420501a9b8b7d38bd039dda37842222aebe7
         self.db.commit()
         self.db.refresh(orm)
         return orm.id, proyecto
@@ -70,10 +66,7 @@ class ProyectoRepository:
             t._estado = t_orm.estado
             t._prioridad = t_orm.prioridad
             t.fecha_creacion = t_orm.fecha_creacion
-<<<<<<< HEAD
             t._id = t_orm.id
-=======
->>>>>>> d272420501a9b8b7d38bd039dda37842222aebe7
             p.tareas.append(t)
 
         return p

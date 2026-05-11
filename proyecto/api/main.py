@@ -9,6 +9,8 @@ from proyecto.api.auth_router import router as auth_router
 from proyecto.api.usuarios_router import router as usuarios_router
 from proyecto.api.proyectos_router import router as proyectos_router
 from proyecto.api.tareas_router import router as tareas_router
+from proyecto.auth.jwt_handler import verificar_token
+from fastapi.responses import RedirectResponse
 
 
 app = FastAPI(
@@ -48,6 +50,13 @@ def root():
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
 def index(request: Request):
+    token = request.cookies.get("access_token")
+    if not token:
+        return RedirectResponse("/auth/login", status_code=302)
+    try:
+        verificar_token(token)
+    except ValueError:
+        return RedirectResponse("/auth/login", status_code=302)
     return templates.TemplateResponse(
         request,
         "index.html",

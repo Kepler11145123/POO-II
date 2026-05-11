@@ -8,17 +8,10 @@ class TareaRepository:
 
     def guardar(self, tarea: Tarea, proyecto_id: int):
         orm = TareaORM(
-<<<<<<< HEAD
             titulo       = tarea._titulo, 
             descripcion  = tarea.descripcion,
             estado       = tarea._estado.value if hasattr(tarea._estado, 'value') else tarea._estado, 
             prioridad    = tarea._prioridad.value if hasattr(tarea._prioridad, 'value') else tarea._prioridad,
-=======
-            titulo       = tarea._titulo,
-            descripcion  = tarea.descripcion,
-            estado       = tarea._estado,
-            prioridad    = tarea._prioridad,
->>>>>>> d272420501a9b8b7d38bd039dda37842222aebe7
             proyecto_id  = proyecto_id,
             asignado_a   = None
         )
@@ -38,13 +31,8 @@ class TareaRepository:
         orm = self.db.query(TareaORM).filter(TareaORM.id == tarea_id).first()
         if not orm:
             return None
-<<<<<<< HEAD
         orm.estado           = tarea._estado.value if hasattr(tarea._estado, 'value') else tarea._estado,
         orm.prioridad        = tarea._prioridad.value if hasattr(tarea._prioridad, 'value') else tarea._prioridad,
-=======
-        orm.estado           = tarea._estado
-        orm.prioridad        = tarea._prioridad
->>>>>>> d272420501a9b8b7d38bd039dda37842222aebe7
         orm.fecha_completada = tarea._fecha_completada
         self.db.commit()
         self.db.refresh(orm)
