@@ -43,6 +43,14 @@ class Tarea:
         self._estado = EstadoTarea.COMPLETADA
         self._fecha_completada = datetime.now()
 
+    def toggle_completada(self) -> None:
+        if self._estado == EstadoTarea.COMPLETADA:
+            self._estado = EstadoTarea.PENDIENTE
+            self._fecha_completada = None
+        else:
+            self._estado = EstadoTarea.COMPLETADA
+            self._fecha_completada = datetime.now()
+
     def cambiar_prioridad(self, nueva_prioridad: PrioridadTarea) -> None:
         self._prioridad = nueva_prioridad
 

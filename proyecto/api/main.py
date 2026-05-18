@@ -2,8 +2,6 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from database.connection import engine
-from database.base import Base
 
 from proyecto.api.auth_router import router as auth_router
 from proyecto.api.usuarios_router import router as usuarios_router
@@ -39,10 +37,6 @@ app.include_router(auth_router)
 app.include_router(usuarios_router)
 app.include_router(proyectos_router)
 app.include_router(tareas_router)
-
-@app.on_event("startup")
-def startup():
-    Base.metadata.create_all(bind=engine)
 
 @app.get("/status", tags=["Root"], summary="Estado de la API")
 def root():

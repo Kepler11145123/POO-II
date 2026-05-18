@@ -16,7 +16,7 @@
     hx-target="#tarea-{{ tarea.id }}"
     hx-swap="outerHTML"
     hx-trigger="click"
-    title="{% if completada %}Completada{% else %}Marcar como completada{% endif %}"
+    title="{% if completada %}Marcar como pendiente{% else %}Marcar como completada{% endif %}"
   >
     <i class="bi {% if completada %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
   </button>

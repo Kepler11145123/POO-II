@@ -17,6 +17,7 @@ class UsuarioRepository:
         self.db.add(orm)
         self.db.commit()
         self.db.refresh(orm)
+        usuario.id = orm.id
         return orm.id, usuario
 
     def obtener(self, usuario_id: int):
@@ -25,6 +26,12 @@ class UsuarioRepository:
 
     def obtener_por_username(self, username: str):
         orm = self.db.query(UsuarioORM).filter(UsuarioORM.username == username).first()
+        if not orm:
+            return None
+        return orm.id, self._a_dominio(orm)
+
+    def obtener_por_email(self, email: str):
+        orm = self.db.query(UsuarioORM).filter(UsuarioORM.email == email).first()
         if not orm:
             return None
         return orm.id, self._a_dominio(orm)
@@ -54,6 +61,7 @@ class UsuarioRepository:
 
     def _a_dominio(self, orm: UsuarioORM) -> Usuario:
         u = Usuario(username=orm.username, email=orm.email, nombre_completo=orm.nombre_completo)
+        u.id = orm.id
         u._activo = orm.activo
         u._password_hash = orm.password_hash
         u.fecha_registro = orm.fecha_registro

@@ -6,8 +6,6 @@ from proyecto.api.dependencies import get_tarea_repo, get_current_user
 from proyecto.src.domain.enums import PrioridadTarea, EstadoTarea
 from proyecto.src.domain.tarea import Tarea
 from database.repositories.tarea_repo import TareaRepository
-from proyecto.auth.jwt_handler import verificar_token
-from fastapi.responses import RedirectResponse
 
 router = APIRouter(prefix="/tareas", tags=["Tareas"])
 templates = Jinja2Templates(directory="proyecto/templates")
@@ -20,18 +18,16 @@ templates = Jinja2Templates(directory="proyecto/templates")
     response_class=HTMLResponse,
     include_in_schema=False,
 )
-def completar_tarea(tarea_id: int, request: Request, repo: TareaRepository = Depends(get_tarea_repo)):
-    token = request.cookies.get("access_token")
-    if not token:
-        return RedirectResponse("/auth/login")
-    try:
-        verificar_token(token)
-    except ValueError:
-        return RedirectResponse("/auth/login")
-    tarea = repo.obtener(tarea_id)
+def completar_tarea(
+    tarea_id: int,
+    request: Request,
+    repo: TareaRepository = Depends(get_tarea_repo),
+    current_user = Depends(get_current_user),
+):
+    tarea = repo.obtener_para_lider(tarea_id, current_user.id)
     if not tarea:
         raise HTTPException(status_code=404, detail="Tarea no encontrada")
-    tarea._estado = EstadoTarea.COMPLETADA
+    tarea.toggle_completada()
     repo.actualizar(tarea_id, tarea)
     return templates.TemplateResponse(request, "tareas/item.html", {"tarea": _a_response(tarea_id, tarea)})
 
@@ -40,15 +36,13 @@ def completar_tarea(tarea_id: int, request: Request, repo: TareaRepository = Dep
     response_class=HTMLResponse,
     include_in_schema=False,
 )
-async def cambiar_prioridad(tarea_id: int, request: Request, repo: TareaRepository = Depends(get_tarea_repo)):
-    token = request.cookies.get("access_token")
-    if not token:
-        return RedirectResponse("/auth/login")
-    try:
-        verificar_token(token)
-    except ValueError:
-        return RedirectResponse("/auth/login")
-    tarea = repo.obtener(tarea_id)
+async def cambiar_prioridad(
+    tarea_id: int,
+    request: Request,
+    repo: TareaRepository = Depends(get_tarea_repo),
+    current_user = Depends(get_current_user),
+):
+    tarea = repo.obtener_para_lider(tarea_id, current_user.id)
     if not tarea:
         raise HTTPException(status_code=404, detail="Tarea no encontrada")
     form = await request.form()
@@ -69,7 +63,7 @@ def completar_tarea_json(
     repo: TareaRepository = Depends(get_tarea_repo),
     current_user = Depends(get_current_user)
 ):
-    tarea = repo.obtener(tarea_id)
+    tarea = repo.obtener_para_lider(tarea_id, current_user.id)
     if not tarea:
         raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
     tarea.completar()
@@ -88,7 +82,7 @@ def cambiar_prioridad_json(
     repo: TareaRepository = Depends(get_tarea_repo),
     current_user = Depends(get_current_user)
 ):
-    tarea = repo.obtener(tarea_id)
+    tarea = repo.obtener_para_lider(tarea_id, current_user.id)
     if not tarea:
         raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
     tarea.cambiar_prioridad(body.prioridad)
@@ -97,18 +91,18 @@ def cambiar_prioridad_json(
 
 @router.get("/json", response_model=list[TareaResponse])
 def listar_tareas_json(repo: TareaRepository = Depends(get_tarea_repo), current_user = Depends(get_current_user)):
-    return [_a_response(tid, t) for tid, t in repo.listar()]
+    return [_a_response(tid, t) for tid, t in repo.listar_por_lider(current_user.id)]
 
 @router.get("/json/{tarea_id}", response_model=TareaResponse)
 def obtener_tarea_json(tarea_id: int, repo: TareaRepository = Depends(get_tarea_repo), current_user = Depends(get_current_user)):
-    tarea = repo.obtener(tarea_id)
+    tarea = repo.obtener_para_lider(tarea_id, current_user.id)
     if not tarea:
         raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
     return _a_response(tarea_id, tarea)
 
 @router.delete("/json/{tarea_id}", status_code=204)
 def eliminar_tarea_json(tarea_id: int, repo: TareaRepository = Depends(get_tarea_repo), current_user = Depends(get_current_user)):
-    if not repo.eliminar(tarea_id):
+    if not repo.eliminar_para_lider(tarea_id, current_user.id):
         raise HTTPException(status_code=404, detail=f"Tarea {tarea_id} no encontrada.")
 
 # ─ Helper ─

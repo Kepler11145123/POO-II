@@ -18,6 +18,7 @@ class Usuario:
         self._nombre_completo = nombre_completo
         self._activo = True
         self.fecha_registro = datetime.now()
+        self.id = None
 
         if password:
             self._password_hash = hashear(password)  # corregido == -> =

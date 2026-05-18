@@ -1,6 +1,12 @@
-from database.base import Base
-from database.connection import engine
-from database import models
+from alembic import command
+from alembic.config import Config
 
-Base.metadata.create_all(bind=engine)
-print("✅ Tablas creadas exitosamente")
+
+def main() -> None:
+    config = Config("alembic.ini")
+    command.upgrade(config, "head")
+    print("Migraciones aplicadas exitosamente")
+
+
+if __name__ == "__main__":
+    main()

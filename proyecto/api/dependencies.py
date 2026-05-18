@@ -25,9 +25,13 @@ def get_current_user(request: Request, repo: UsuarioRepository = Depends(get_usu
         payload = verificar_token(token)
         username = payload.get("sub")
         user_id = payload.get("id")
+        if not username or user_id is None:
+            raise HTTPException(status_code=401, detail="Token invalido")
         resultado = repo.obtener_por_username(username)
         if not resultado or resultado[0] != user_id:
             raise HTTPException(status_code=401, detail="Token inválido")
-        return resultado[1]
+        usuario = resultado[1]
+        usuario.id = resultado[0]
+        return usuario
     except ValueError:
         raise HTTPException(status_code=401, detail="Token inválido")

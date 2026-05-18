@@ -1,7 +1,11 @@
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Integer, Text
 from sqlalchemy.orm import relationship
-from datetime import datetime
-from .connection import Base
+from datetime import datetime, timezone
+from .base import Base
+
+
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc)
 
 class Usuario(Base):
     __tablename__ = "usuarios"
@@ -13,7 +17,7 @@ class Usuario(Base):
     activo          = Column(Boolean, default=True)
     password_hash   = Column(String(255))
     rol             = Column(String(20), default="usuario")
-    fecha_registro  = Column(DateTime, default=datetime.utcnow)
+    fecha_registro  = Column(DateTime, default=utc_now)
 
     proyectos_liderados = relationship("Proyecto", back_populates="lider")
     tareas_asignadas    = relationship("Tarea", back_populates="asignado")
@@ -24,7 +28,7 @@ class Proyecto(Base):
     id             = Column(Integer, primary_key=True)
     nombre         = Column(String(100), nullable=False)
     descripcion    = Column(Text)
-    fecha_creacion = Column(DateTime, default=datetime.utcnow)
+    fecha_creacion = Column(DateTime, default=utc_now)
     activo         = Column(Boolean, default=True)
     lider_id       = Column(Integer, ForeignKey("usuarios.id", ondelete="SET NULL"))
 
@@ -39,7 +43,7 @@ class Tarea(Base):
     descripcion      = Column(Text)
     estado           = Column(String(20),  default="Pendiente")
     prioridad        = Column(String(10))
-    fecha_creacion   = Column(DateTime, default=datetime.utcnow)
+    fecha_creacion   = Column(DateTime, default=utc_now)
     fecha_completada = Column(DateTime)
     fecha_limite     = Column(DateTime)
     proyecto_id      = Column(Integer, ForeignKey("proyectos.id", ondelete="CASCADE"), nullable=False)

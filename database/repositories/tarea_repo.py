@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from database.models import Tarea as TareaORM
+from database.models import Proyecto as ProyectoORM, Tarea as TareaORM
 from proyecto.src.domain.tarea import Tarea
 
 class TareaRepository:
@@ -24,15 +24,35 @@ class TareaRepository:
         orm = self.db.query(TareaORM).filter(TareaORM.id == tarea_id).first()
         return self._a_dominio(orm) if orm else None
 
+    def obtener_para_lider(self, tarea_id: int, lider_id: int):
+        orm = (
+            self.db.query(TareaORM)
+            .join(ProyectoORM, TareaORM.proyecto_id == ProyectoORM.id)
+            .filter(TareaORM.id == tarea_id, ProyectoORM.lider_id == lider_id)
+            .first()
+        )
+        return self._a_dominio(orm) if orm else None
+
     def listar(self):
         return [(orm.id, self._a_dominio(orm)) for orm in self.db.query(TareaORM).all()]
+
+    def listar_por_lider(self, lider_id: int):
+        return [
+            (orm.id, self._a_dominio(orm))
+            for orm in (
+                self.db.query(TareaORM)
+                .join(ProyectoORM, TareaORM.proyecto_id == ProyectoORM.id)
+                .filter(ProyectoORM.lider_id == lider_id)
+                .all()
+            )
+        ]
 
     def actualizar(self, tarea_id: int, tarea: Tarea):
         orm = self.db.query(TareaORM).filter(TareaORM.id == tarea_id).first()
         if not orm:
             return None
-        orm.estado           = tarea._estado.value if hasattr(tarea._estado, 'value') else tarea._estado,
-        orm.prioridad        = tarea._prioridad.value if hasattr(tarea._prioridad, 'value') else tarea._prioridad,
+        orm.estado           = tarea._estado.value if hasattr(tarea._estado, 'value') else tarea._estado
+        orm.prioridad        = tarea._prioridad.value if hasattr(tarea._prioridad, 'value') else tarea._prioridad
         orm.fecha_completada = tarea._fecha_completada
         self.db.commit()
         self.db.refresh(orm)
@@ -46,8 +66,24 @@ class TareaRepository:
         self.db.commit()
         return True
 
+    def eliminar_para_lider(self, tarea_id: int, lider_id: int) -> bool:
+        orm = (
+            self.db.query(TareaORM)
+            .join(ProyectoORM, TareaORM.proyecto_id == ProyectoORM.id)
+            .filter(TareaORM.id == tarea_id, ProyectoORM.lider_id == lider_id)
+            .first()
+        )
+        if not orm:
+            return False
+        self.db.delete(orm)
+        self.db.commit()
+        return True
+
     def _a_dominio(self, orm: TareaORM) -> Tarea:
         t = Tarea(titulo=orm.titulo, descripcion=orm.descripcion)
+        t._id                = orm.id
+        t.proyecto_id        = orm.proyecto_id
+        t.asignado_a         = orm.asignado_a
         t._estado           = orm.estado
         t._prioridad        = orm.prioridad
         t.fecha_creacion    = orm.fecha_creacion
