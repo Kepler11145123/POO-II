@@ -7,6 +7,7 @@ y templates **Jinja2**.
 ---
 
 ## Estructura del proyecto
+```
 taskflow/
 ├── alembic/
 │   ├── env.py                        # Configuración de migraciones
@@ -63,7 +64,7 @@ taskflow/
 ├── create_tables.py                  # Aplica migraciones programáticamente
 ├── .env.example
 └── pytest.ini
-
+```
 ---
 
 ## Tecnologías
