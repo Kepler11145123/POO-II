@@ -376,3 +376,4 @@ altas      = proyecto.obtener_tareas_por_prioridad(PrioridadTarea.ALTA)
 
 # Verificar contraseña
 usuario.verificar_password("secreto123")  # True
+```
