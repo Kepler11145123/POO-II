@@ -1,148 +1,252 @@
 # TaskFlow — Sistema de Gestión de Proyectos y Tareas
 
-API REST construida con **FastAPI**, persistencia en **JSON**, frontend dinámico con **HTMX** y templates **Jinja2**.
+API REST construida con **FastAPI**, persistencia en **SQLite** via **SQLAlchemy ORM**,
+migraciones con **Alembic**, autenticación **JWT**, frontend dinámico con **HTMX**
+y templates **Jinja2**.
 
 ---
 
-##  Estructura del proyecto
-
-```
-proyecto/
-├── api/
-│   ├── main.py                  # Punto de entrada de FastAPI
-│   ├── models.py                # Schemas Pydantic (Request / Response)
-│   ├── dependencies.py          # Inyección de dependencias
-│   ├── usuarios_router.py
-│   ├── proyectos_router.py
-│   ├── tareas_router.py
-│   └── routes/
-│       └── auth.py              # Login JWT
-├── auth/
-│   └── jwt_handler.py           # Creación y verificación de tokens
-├── src/
-│   ├── domain/
-│   │   ├── enums.py             # PrioridadTarea, EstadoTarea
-│   │   ├── usuario.py
-│   │   ├── tarea.py
-│   │   └── proyecto.py
-│   ├── infrastructure/
-│   │   ├── csv_database.py      # Inicialización de archivos JSON
-│   │   └── repositories/
-│   │       ├── interfaces.py    # ABCs: IUsuario/IProyecto/ITareaRepository
-│   │       ├── usuario_repo.py
-│   │       ├── proyecto_repo.py
-│   │       └── tarea_repo.py
-│   └── data/                    # Archivos JSON de persistencia
-│       ├── usuarios.json
-│       ├── proyectos.json
-│       └── tareas.json
-├── templates/
-│   ├── base.html
-│   ├── index.html
-│   ├── proyectos/
-│   │   ├── lista.html
-│   │   └── form.html
-│   └── tareas/
-│       ├── lista.html
-│       └── item.html
-├── static/
-│   └── css/custom.css
+## Estructura del proyecto
+taskflow/
+├── alembic/
+│   ├── env.py                        # Configuración de migraciones
+│   ├── script.py.mako                # Template de revisiones
+│   └── versions/
+│       └── 20260514_0001_create_initial_tables.py
+├── database/
+│   ├── base.py                       # DeclarativeBase de SQLAlchemy
+│   ├── connection.py                 # Engine, SessionLocal, get_db()
+│   ├── models.py                     # Modelos ORM: Usuario, Proyecto, Tarea
+│   └── repositories/
+│       ├── usuario_repo.py
+│       ├── proyecto_repo.py
+│       └── tarea_repo.py
+├── proyecto/
+│   ├── api/
+│   │   ├── main.py                   # Punto de entrada FastAPI
+│   │   ├── models.py                 # Schemas Pydantic (Request / Response)
+│   │   ├── dependencies.py           # Inyección de dependencias (DI)
+│   │   ├── auth_router.py            # Login, registro, logout
+│   │   ├── usuarios_router.py
+│   │   ├── proyectos_router.py
+│   │   └── tareas_router.py
+│   ├── auth/
+│   │   └── jwt_handler.py            # Creación y verificación de tokens JWT
+│   ├── src/
+│   │   └── domain/
+│   │       ├── enums.py              # PrioridadTarea, EstadoTarea
+│   │       ├── usuario.py
+│   │       ├── tarea.py
+│   │       └── proyecto.py
+│   ├── static/
+│   │   └── css/custom.css
+│   └── templates/
+│       ├── base.html
+│       ├── index.html
+│       ├── login.html
+│       ├── register.html
+│       ├── proyectos/
+│       │   ├── lista.html
+│       │   └── form.html
+│       └── tareas/
+│           ├── lista.html
+│           └── item.html
 ├── tests/
 │   ├── conftest.py
 │   ├── test_enums.py
 │   ├── test_usuario.py
 │   ├── test_tarea.py
-│   └── test_proyecto.py
+│   ├── test_proyecto.py
+│   ├── test_jwt.py
+│   └── test_data_isolation.py
+├── alembic.ini
+├── create_tables.py                  # Aplica migraciones programáticamente
+├── .env.example
 └── pytest.ini
-```
 
 ---
 
-##  Requisitos
+## Tecnologías
+
+| Capa | Tecnología |
+|------|-----------|
+| Framework web | FastAPI |
+| ORM | SQLAlchemy |
+| Migraciones | Alembic |
+| Base de datos | SQLite (por defecto) |
+| Autenticación | JWT (python-jose) |
+| Validación | Pydantic v2 |
+| Frontend | HTMX + Jinja2 + Bootstrap 5 |
+| Tests | pytest |
+
+---
+
+## Requisitos
 
 - Python 3.10+
 - pip
 
 ---
 
-##  Instalación
+## Instalación
 
 ```bash
 # 1. Clonar el repositorio
 git clone <URL_DEL_REPOSITORIO>
-cd proyecto
+cd taskflow
 
-# 2. Crear entorno virtual (recomendado)
+# 2. Crear entorno virtual
 python -m venv venv
 source venv/bin/activate      # Linux / Mac
 venv\Scripts\activate         # Windows
 
 # 3. Instalar dependencias
 pip install -r requirements.txt
+
+# 4. Configurar variables de entorno
+cp .env.example .env
+# Editar .env y cambiar JWT_SECRET por un valor seguro
 ```
 
 ---
 
-##  Ejecución del servidor
+## Base de datos y migraciones
+
+El proyecto usa **Alembic** para gestionar el esquema de la base de datos.
+
+```bash
+# Aplicar todas las migraciones (crea las tablas)
+python create_tables.py
+
+# O directamente con Alembic
+alembic upgrade head
+
+# Ver el estado actual de las migraciones
+alembic current
+
+# Revertir la última migración
+alembic downgrade -1
+
+# Crear una nueva migración
+alembic revision --autogenerate -m "descripcion del cambio"
+```
+
+La URL de la base de datos se lee desde la variable de entorno `DATABASE_URL`.
+Por defecto usa SQLite: `sqlite:///./taskflow.db`.
+
+---
+
+## Ejecución del servidor
 
 ```bash
 uvicorn proyecto.api.main:app --reload
 ```
 
-- API: http://127.0.0.1:8000
-- Documentación Swagger: http://127.0.0.1:8000/docs
-- Frontend: http://127.0.0.1:8000/
+- App: http://127.0.0.1:8000
+- Swagger UI: http://127.0.0.1:8000/docs
+- ReDoc: http://127.0.0.1:8000/redoc
 
 ---
 
-##  Endpoints
+## Autenticación
 
-###  Auth
+El sistema usa **JWT (JSON Web Tokens)** con algoritmo HS256.
+
+El flujo es:
+1. El usuario se registra en `/auth/register` o inicia sesión en `/auth/login`.
+2. El servidor genera un token JWT y lo guarda en una cookie `httponly`.
+3. Cada request posterior envía la cookie automáticamente.
+4. El módulo `dependencies.py` verifica el token en cada endpoint protegido.
+
+> **Importante:** cambiar el valor de `JWT_SECRET` en el archivo `.env` antes de cualquier despliegue en producción. Nunca usar el valor por defecto.
+
+---
+
+## Endpoints
+
+### Auth
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| `POST` | `/auth/login` | Login con `username`/`password`, retorna JWT |
+| `GET` | `/auth/login` | Página de login (HTML) |
+| `POST` | `/auth/login` | Autenticar usuario, retorna cookie JWT |
+| `GET` | `/auth/register` | Página de registro (HTML) |
+| `POST` | `/auth/register` | Crear cuenta nueva |
+| `POST` | `/auth/logout` | Cerrar sesión, elimina la cookie |
 
-###  Usuarios
+### Usuarios
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | `GET` | `/usuarios/` | Listar todos los usuarios |
 | `POST` | `/usuarios/` | Crear usuario |
 | `GET` | `/usuarios/{id}` | Obtener usuario por ID |
+| `PUT` | `/usuarios/{id}` | Actualizar usuario |
+| `DELETE` | `/usuarios/{id}` | Eliminar usuario |
 
-###  Proyectos
-
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/proyectos` | Listar proyectos (HTML vía HTMX) |
-| `POST` | `/proyectos` | Crear proyecto |
-| `GET` | `/proyectos/{id}/tareas` | Ver tareas de un proyecto |
-| `POST` | `/proyectos/{id}/tareas` | Agregar tarea a un proyecto |
-| `DELETE` | `/proyectos/{id}` | Eliminar proyecto |
-
-###  Tareas
+### Proyectos
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| `PATCH` | `/tareas/{id}/completar` | Marcar como completada (HTML) |
+| `GET` | `/proyectos` | Listar proyectos del usuario (HTML) |
+| `POST` | `/proyectos` | Crear proyecto (HTML) |
+| `GET` | `/proyectos/{id}/tareas` | Ver tareas del proyecto (HTML) |
+| `POST` | `/proyectos/{id}/tareas` | Agregar tarea al proyecto (HTML) |
+| `DELETE` | `/proyectos/{id}` | Eliminar proyecto (HTML) |
+| `GET` | `/proyectos/json` | Listar proyectos (JSON) |
+| `POST` | `/proyectos/json` | Crear proyecto (JSON) |
+| `PUT` | `/proyectos/json/{id}` | Actualizar proyecto (JSON) |
+| `DELETE` | `/proyectos/json/{id}` | Eliminar proyecto (JSON) |
+
+### Tareas
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| `PATCH` | `/tareas/{id}/completar` | Completar / reabrir tarea (HTML) |
 | `PATCH` | `/tareas/{id}/prioridad` | Cambiar prioridad (HTML) |
-| `PATCH` | `/tareas/{id}/completar/json` | Marcar como completada (JSON) |
+| `PATCH` | `/tareas/{id}/completar/json` | Completar tarea (JSON) |
 | `PATCH` | `/tareas/{id}/prioridad/json` | Cambiar prioridad (JSON) |
+| `GET` | `/tareas/json` | Listar tareas del usuario (JSON) |
+| `GET` | `/tareas/json/{id}` | Obtener tarea por ID (JSON) |
+| `DELETE` | `/tareas/json/{id}` | Eliminar tarea (JSON) |
 
-###  Códigos de estado
+### Códigos de estado
 
 | Código | Significado |
 |--------|-------------|
 | `200` | Operación exitosa |
 | `201` | Recurso creado |
+| `302` | Redirección (login/logout) |
 | `401` | No autenticado |
 | `404` | Recurso no encontrado |
 | `422` | Error de validación |
 
 ---
 
-##  Modelos de dominio
+## Arquitectura por capas
+HTTP Request
+↓
+FastAPI Router          (proyecto/api/*_router.py)
+↓
+Dependencies / DI       (proyecto/api/dependencies.py)
+↓
+Repository              (database/repositories/)
+↓
+SQLAlchemy ORM          (database/models.py)
+↓
+SQLite / PostgreSQL
+
+Cada capa tiene una responsabilidad única:
+
+- **Routers** — reciben el request, llaman al repositorio, retornan la respuesta.
+- **Dependencies** — crean la sesión de BD, instancian los repositorios, verifican el JWT.
+- **Repositorios** — contienen toda la lógica de acceso a datos. Traducen entre ORM y dominio.
+- **ORM** — define el esquema de la base de datos con SQLAlchemy.
+- **Dominio** — clases de negocio puras sin dependencia de frameworks.
+
+---
+
+## Modelos de dominio
 
 ### Enums
 
@@ -159,20 +263,21 @@ class EstadoTarea(Enum):
 ```
 
 ### Ciclo de vida de una Tarea
-
-```
 PENDIENTE → EN_PROGRESO → COMPLETADA
 PENDIENTE →              COMPLETADA   (también válido)
-```
+COMPLETADA → PENDIENTE               (toggle_completada)
 
 ### Schemas Pydantic
 
-- `UsuarioRequest` / `UsuarioResponse`
-- `ProyectoRequest` / `ProyectoResponse`
-- `TareaRequest` / `TareaResponse`
-- `CambiarPrioridadRequest`
-
-**Validaciones incluidas:** longitud mínima de username (3 chars), formato de email, longitud mínima de nombre de proyecto y título de tarea (3 chars).
+| Schema | Uso |
+|--------|-----|
+| `UsuarioRequest` | Crear usuario (valida username y email) |
+| `UsuarioResponse` | Respuesta con datos del usuario |
+| `ProyectoRequest` | Crear / actualizar proyecto |
+| `ProyectoResponse` | Respuesta con datos del proyecto |
+| `TareaRequest` | Crear tarea (valida título y prioridad) |
+| `TareaResponse` | Respuesta con datos de la tarea |
+| `CambiarPrioridadRequest` | Body para cambiar prioridad |
 
 ---
 
@@ -180,57 +285,72 @@ PENDIENTE →              COMPLETADA   (también válido)
 
 El frontend no usa JavaScript personalizado. Toda la interactividad se maneja con atributos HTMX:
 
-- `hx-get` / `hx-post` / `hx-patch` / `hx-delete`
-- `hx-target` / `hx-swap` / `hx-trigger`
-- `hx-confirm` para confirmaciones de eliminación
+- `hx-get` / `hx-post` / `hx-patch` / `hx-delete` — llamadas al servidor
+- `hx-target` / `hx-swap` — dónde y cómo actualizar el DOM
+- `hx-trigger` — qué evento dispara la llamada
+- `hx-confirm` — confirmación antes de eliminar
 
-**Funcionalidades:** listado dinámico de proyectos, creación sin recarga, gestión de tareas por proyecto, completar tareas y cambiar prioridad en tiempo real.
-
----
-
-##  Autenticación JWT
-
-El módulo `proyecto/auth/jwt_handler.py` implementa la creación y verificación de tokens HS256. El endpoint `/auth/login` acepta `OAuth2PasswordRequestForm` y retorna un `access_token` de tipo Bearer.
-
->  **Importante:** cambiar `SECRET_KEY` en `jwt_handler.py` antes de cualquier despliegue.
-
----
-
-##  Bugs conocidos
-
-Los siguientes errores están presentes en el código fuente actual:
-
-- **`usuario.py`** — `hashear()` tiene un typo: `password.encodne()` debería ser `password.encode()`. Esto hace que el hashing de contraseñas falle en tiempo de ejecución.
-- **`usuario.py`** — El constructor asigna con `==` en lugar de `=`: `self._password_hash == hashear(password)` no asigna el hash.
-- **`usuario.py`** — El método está definido como `verificar_contraseña` pero `auth.py` llama a `verificar_password` (nombre diferente).
-- **`proyecto.py`** — `from_dict` referencia `data["Lider"]` (con L mayúscula) en lugar de `data["lider"]`, lo que causa `KeyError` al deserializar.
-- **`repositories/__init__.py`** — `obtener_tarea` no está definido como función de módulo; `tareas_router.py` llama a `repositories.obtener_tarea(tarea_id)` que no existe en ese namespace.
+**Funcionalidades:**
+- Registro e inicio de sesión con redirección automática
+- Listado dinámico de proyectos del usuario autenticado
+- Creación de proyectos sin recargar la página
+- Gestión de tareas por proyecto
+- Completar / reabrir tareas en tiempo real
+- Cambio de prioridad con selector inline
+- Cierre de sesión con eliminación de cookie
 
 ---
 
-##  Tests
+## Tests
 
-Los tests usan `pytest` con fixtures definidas en `conftest.py`. Están organizados por clase y cubren creación, validaciones, cambios de estado y filtros.
+Los tests usan `pytest` con fixtures definidas en `conftest.py`.
 
 ```bash
-# Desde la raíz del proyecto
+# Ejecutar todos los tests
 pytest proyecto/ -v
-```
 
-**Marcadores disponibles:**
-
-- `unit` — tests unitarios puros
-- `integration` — tests de integración
-- `smoke` — pruebas críticas rápidas
-
-```bash
+# Solo tests unitarios
 pytest -m unit
+
+# Solo pruebas rápidas críticas
 pytest -m smoke
+
+# Solo tests de integración
+pytest -m integration
 ```
+
+### Cobertura de tests
+
+| Archivo | Qué prueba |
+|---------|-----------|
+| `test_enums.py` | Valores y validaciones de PrioridadTarea y EstadoTarea |
+| `test_usuario.py` | Creación, validaciones, activar/desactivar |
+| `test_tarea.py` | Creación, cambios de estado, prioridad |
+| `test_proyecto.py` | Creación, agregar tareas, filtros |
+| `test_jwt.py` | Creación/verificación de tokens, login, registro |
+| `test_data_isolation.py` | Aislamiento de datos entre usuarios |
+
+### Marcadores disponibles
+
+| Marcador | Descripción |
+|----------|-------------|
+| `unit` | Tests unitarios puros |
+| `integration` | Tests de integración con base de datos |
+| `smoke` | Pruebas críticas rápidas |
 
 ---
 
-##  Ejemplo de uso del dominio
+## Variables de entorno
+
+| Variable | Descripción | Valor por defecto |
+|----------|-------------|-------------------|
+| `DATABASE_URL` | URL de conexión a la base de datos | `sqlite:///./taskflow.db` |
+| `JWT_SECRET` | Clave secreta para firmar tokens | `dev-secret-key-change-me` |
+| `JWT_EXPIRE_MINUTES` | Duración del token en minutos | `60` |
+
+---
+
+## Ejemplo de uso del dominio
 
 ```python
 from proyecto.src.domain.enums import PrioridadTarea
@@ -239,17 +359,20 @@ from proyecto.src.domain.tarea import Tarea
 from proyecto.src.domain.proyecto import Proyecto
 
 # Crear entidades
-usuario  = Usuario("juan123", "juan@mail.com", "Juan Pérez")
+usuario  = Usuario("juan123", "juan@mail.com", "Juan Pérez", password="secreto123")
 proyecto = Proyecto("Mi App", lider=usuario)
 
 # Agregar y gestionar tareas
 tarea = Tarea("Diseñar base de datos", prioridad=PrioridadTarea.ALTA)
 proyecto.agregar_tarea(tarea)
 
-tarea.iniciar()   # → EN_PROGRESO
-tarea.completar() # → COMPLETADA
+tarea.iniciar()          # PENDIENTE → EN_PROGRESO
+tarea.completar()        # EN_PROGRESO → COMPLETADA
+tarea.toggle_completada() # COMPLETADA → PENDIENTE
 
 # Consultas
 pendientes = proyecto.obtener_tareas_pendientes()
 altas      = proyecto.obtener_tareas_por_prioridad(PrioridadTarea.ALTA)
-```
+
+# Verificar contraseña
+usuario.verificar_password("secreto123")  # True
